@@ -82,7 +82,30 @@ void printMoviesFromYear(struct movie* list, int year)
 /* 
  * TODO: Show highest rated movie for each year
 */
+void printTopMovies(struct movie* list) {
+    
+    struct movie* topMovies[122] = {NULL}; // 122 Possible years (1900-2021)
 
+    // Build an array of top movies
+    while (list != NULL) {
+        int yearIndex = list->year - 1900;
+        if (topMovies[yearIndex] == NULL || list->ratingValue > topMovies[yearIndex]->ratingValue) {
+            topMovies[yearIndex] = list;
+        } 
+        list = list->next;
+    }
+   
+    // Display the results
+    for (size_t i = 0; i < 122; i++) {
+        struct movie* m = topMovies[i];
+        if (m != NULL) {
+            printf("\n\nThis method works:   %s, %d, %s", m->title, m->year, m->ratingValue);
+            printf("\nThis method doesn't: %d %s %s ", m->year, m->ratingValue, m->title);
+        }
+    }
+
+    printf("\n");
+}
 
 /* 
  * TODO: Show the title and year of release of all movies
@@ -171,12 +194,24 @@ int main(int argc, char *argv[])
         printf("Example usage: ./movies movies.csv\n");
         return EXIT_FAILURE;
     }
+
+    // Create movie linked list
     struct movie* list = processFile(argv[1]);
+
+    // Test printMovieList
     printf("\n\n");
     printMovieList(list);
+
+    // Test printMoviesFromYear
     printf("\n\n");
     printMoviesFromYear(list, 2015);
     printMoviesFromYear(list, 1200);
+
+    // Test printTopMovies
+    printf("\n\n");
+    printTopMovies(list);
+    printf("\n\n");
+
     return EXIT_SUCCESS;
 }
 
