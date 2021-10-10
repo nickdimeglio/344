@@ -6,7 +6,7 @@
 struct movie
 {
     char* title;
-    char* year;
+    int year;
     char* languages;
     char* ratingValue;
     struct movie* next;
@@ -29,8 +29,8 @@ struct movie* createMovie(char* currLine)
 
     // The next token is the year
     token = strtok_r(NULL, ",", &saveptr);
-    currMovie->year = calloc(strlen(token) + 1, sizeof(char));
-    strcpy(currMovie->year, token);
+    int year = atoi(token);
+    currMovie->year = year;
 
     // The next token is the language(s)
     token = strtok_r(NULL, ",", &saveptr);
@@ -49,15 +49,46 @@ struct movie* createMovie(char* currLine)
     return currMovie;
 }
 
-/* TODO: Show movies released in a specified year
+/*
+* Print data for the given movie
+*/
+void printMovie(struct movie* aMovie){
+    printf("%s, %d, %s, %s\n", aMovie->title, aMovie->year, aMovie->languages, aMovie->ratingValue);
+}
+
+
+/* 
+ * Show movies released in a specified year
+*/
+void printMoviesFromYear(struct movie* list, int year)
+{
+    int moviePrinted = 0;
+    while (list != NULL)
+    {
+        if (list->year == year) {
+        printf("%s\n", list->title);
+        moviePrinted = 1;
+        }
+        list = list->next;
+    }
+    if (!moviePrinted) {
+        printf("We don't have any movies from %u :(\n", year);
+    }
+
+    printf("\n\n");
+}
+
+
+/* 
+ * TODO: Show highest rated movie for each year
 */
 
-/* TODO: Show highest rated movie for each year
-*/
 
-/* TODO: Show the title and year of release of all movies
+/* 
+ * TODO: Show the title and year of release of all movies
  * in a specified language
 */
+
 
 /*
 * Return a linked list of movies by parsing
@@ -112,12 +143,6 @@ struct movie* processFile(char* filePath)
     return head;
 }
 
-/*
-* Print data for the given movie
-*/
-void printMovie(struct movie* aMovie){
-    printf("%s, %s, %s, %s\n", aMovie->title, aMovie->year, aMovie->languages, aMovie->ratingValue);
-}
 
 /*
 * Print the linked list of movie
@@ -150,6 +175,8 @@ int main(int argc, char *argv[])
     printf("\n\n");
     printMovieList(list);
     printf("\n\n");
+    printMoviesFromYear(list, 2015);
+    printMoviesFromYear(list, 1200);
     return EXIT_SUCCESS;
 }
 
