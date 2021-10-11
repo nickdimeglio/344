@@ -108,7 +108,28 @@ void printTopMovies(struct movie* list) {
  * TODO: Show the title and year of release of all movies
  * in a specified language
 */
+void printMoviesInLanguage(struct movie* list, char* lang) {
 
+    // Walk through movies
+    while (list != NULL) {
+        // For use with strtok_r
+        char* saveptr;
+        char* languages = malloc(sizeof(list->languages));
+        strcpy(languages, list->languages);
+
+        // Check each of the movie's languages for a match 
+        char* token = strtok_r(languages, "[];", &saveptr);
+
+        while (token != NULL) {
+            // Print movie if match is found
+            if (strcmp(lang, token) == 0) {
+                printf("%d %s\n", list->year, list->title);
+            }
+            token = strtok_r(NULL, "[];", &saveptr);
+        }
+        list = list->next;
+    }
+}
 
 /*
 * Return a linked list of movies by parsing
@@ -207,6 +228,19 @@ int main(int argc, char *argv[])
     // Test printTopMovies
     printTopMovies(list);
     printf("\n\n");
+
+    // Test PrintMoviesInLanguage
+    printf("Russian Movies:\n");
+    printMoviesInLanguage(list, "Russian");
+
+    printf("\nGerman Movies:\n");
+    printMoviesInLanguage(list, "German");
+
+    printf("\nRussian Movies:\n");
+    printMoviesInLanguage(list, "Russian");
+
+    printf("\ngerman Movies:\n");
+    printMoviesInLanguage(list, "german");
 
     return EXIT_SUCCESS;
 }
