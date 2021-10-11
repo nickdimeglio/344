@@ -8,7 +8,7 @@ struct movie
     char* title;
     int year;
     char* languages;
-    char* ratingValue;
+    double ratingValue;
     struct movie* next;
 };
 
@@ -39,9 +39,9 @@ struct movie* createMovie(char* currLine)
 
     // The next token is the rating value
     // (this token will have a newline character to trim)
-    token = strtok_r(NULL, ",", &saveptr);
-    currMovie->ratingValue = calloc(strlen(token), sizeof(char));
-    strncpy(currMovie->ratingValue, token, strlen(token) - 1);
+    token = strtok_r(NULL, "/n", &saveptr);
+    double ratingValue = strtod(token, &saveptr);
+    currMovie->ratingValue = ratingValue;
 
     // Set the next node to NULL in the newly created movie entry
     currMovie->next = NULL;
@@ -53,7 +53,7 @@ struct movie* createMovie(char* currLine)
 * Print data for the given movie
 */
 void printMovie(struct movie* aMovie){
-    printf("%s, %d, %s, %s\n", aMovie->title, aMovie->year, aMovie->languages, aMovie->ratingValue);
+    printf("%s, %d, %s, %.1f\n", aMovie->title, aMovie->year, aMovie->languages, aMovie->ratingValue);
 }
 
 
@@ -99,8 +99,7 @@ void printTopMovies(struct movie* list) {
     for (size_t i = 0; i < 122; i++) {
         struct movie* m = topMovies[i];
         if (m != NULL) {
-            printf("\n\nThis method works:   %s, %d, %s", m->title, m->year, m->ratingValue);
-            printf("\nThis method doesn't: %d %s %s ", m->year, m->ratingValue, m->title);
+            printf("\n%d %.1f %s", m->year, m->ratingValue, m->title);
         }
     }
 
