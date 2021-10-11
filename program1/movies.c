@@ -75,12 +75,11 @@ void printMoviesFromYear(struct movie* list, int year)
         printf("We don't have any movies from %u :(\n", year);
     }
 
-    printf("\n\n");
 }
 
 
 /* 
- * TODO: Show highest rated movie for each year
+ * Show highest rated movie for each year
 */
 void printTopMovies(struct movie* list) {
     
@@ -103,7 +102,6 @@ void printTopMovies(struct movie* list) {
         }
     }
 
-    printf("\n");
 }
 
 /* 
@@ -161,7 +159,7 @@ struct movie* processFile(char* filePath)
     }
     free(currLine);
     fclose(movieFile);
-    printf("\nProcessed file %s and parsed data for %zu movies", filePath, count);
+    printf("\n\nProcessed file %s and parsed data for %zu movies", filePath, count);
     return head;
 }
 
@@ -198,16 +196,15 @@ int main(int argc, char *argv[])
     struct movie* list = processFile(argv[1]);
 
     // Test printMovieList
-    printf("\n\n");
+    printf("\n");
     printMovieList(list);
 
     // Test printMoviesFromYear
-    printf("\n\n");
+    printf("\n");
     printMoviesFromYear(list, 2015);
     printMoviesFromYear(list, 1200);
 
     // Test printTopMovies
-    printf("\n\n");
     printTopMovies(list);
     printf("\n\n");
 
