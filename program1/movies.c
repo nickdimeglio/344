@@ -114,7 +114,7 @@ void printMoviesInLanguage(struct movie* list, char* lang) {
     while (list != NULL) {
         // For use with strtok_r
         char* saveptr;
-        char* languages = malloc(sizeof(list->languages));
+        char* languages = calloc(strlen(list->languages) + 1, sizeof(char));
         strcpy(languages, list->languages);
 
         // Check each of the movie's languages for a match 
