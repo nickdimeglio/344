@@ -62,19 +62,19 @@ void printMovie(struct movie* aMovie){
 /* 
  * Show movies released in a specified year
 */
-void printMoviesFromYear(struct movie* list, int year)
-{
+void printMoviesFromYear(struct movie* list, int year) {
     bool moviePrinted = false; 
-    while (list != NULL)
+    while (list != NULL)		// Walk through linked list
     {
         if (list->year == year) {
         printf("%s\n", list->title);
-        moviePrinted = true;
+        moviePrinted = true;		// Match found, don't print "no data" message
         }
         list = list->next;
     }
     if (!moviePrinted) {
-        printf("No data about movies released in the year %u", year);
+	// No match found, let user know
+        printf("No data about movies released in the year %u", year); 
     }
 
 }
@@ -84,11 +84,16 @@ void printMoviesFromYear(struct movie* list, int year)
  * Show highest rated movie for each year
 */
 void printTopMovies(struct movie* list) {
-    struct movie* topMovies[122] = {NULL}; // 122 Possible years (1900-2021)
+    
+    // 122 Possible years (1900-2021)
+    struct movie* topMovies[122] = {NULL}; 
 
     // Build an array of top movies
     while (list != NULL) {
         int yearIndex = list->year - 1900;
+	
+	// If the current movie's year has not been seen, or if the current movie's rating
+	// exceeds the current top rating for its year, update the array of top movies
         if (topMovies[yearIndex] == NULL || list->ratingValue > topMovies[yearIndex]->ratingValue) {
             topMovies[yearIndex] = list;
         } 
