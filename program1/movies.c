@@ -1,6 +1,8 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 /* struct for movie information */
 struct movie
@@ -62,17 +64,17 @@ void printMovie(struct movie* aMovie){
 */
 void printMoviesFromYear(struct movie* list, int year)
 {
-    int moviePrinted = 0;
+    bool moviePrinted = false; 
     while (list != NULL)
     {
         if (list->year == year) {
         printf("%s\n", list->title);
-        moviePrinted = 1;
+        moviePrinted = true;
         }
         list = list->next;
     }
     if (!moviePrinted) {
-        printf("We don't have any movies from %u :(\n", year);
+        printf("No data about movies released in the year %u", year);
     }
 
 }
@@ -82,7 +84,6 @@ void printMoviesFromYear(struct movie* list, int year)
  * Show highest rated movie for each year
 */
 void printTopMovies(struct movie* list) {
-    
     struct movie* topMovies[122] = {NULL}; // 122 Possible years (1900-2021)
 
     // Build an array of top movies
@@ -98,20 +99,23 @@ void printTopMovies(struct movie* list) {
     for (size_t i = 0; i < 122; i++) {
         struct movie* m = topMovies[i];
         if (m != NULL) {
-            printf("\n%d %.1f %s", m->year, m->ratingValue, m->title);
+            printf("%d %.1f %s\n", m->year, m->ratingValue, m->title);
         }
     }
 
 }
 
 /* 
- * TODO: Show the title and year of release of all movies
+ * Show the title and year of release of all movies
  * in a specified language
 */
 void printMoviesInLanguage(struct movie* list, char* lang) {
-
+    
+    bool moviePrinted = false;
     // Walk through movies
     while (list != NULL) {
+    
+
         // For use with strtok_r
         char* saveptr;
         char* languages = calloc(strlen(list->languages) + 1, sizeof(char));
@@ -124,10 +128,14 @@ void printMoviesInLanguage(struct movie* list, char* lang) {
             // Print movie if match is found
             if (strcmp(lang, token) == 0) {
                 printf("%d %s\n", list->year, list->title);
+                moviePrinted = true;
             }
             token = strtok_r(NULL, "[];", &saveptr);
         }
         list = list->next;
+    }
+    if (!moviePrinted) {
+        printf("No data about movies released in %s", lang);
     }
 }
 
@@ -186,18 +194,6 @@ struct movie* processFile(char* filePath)
 
 
 /*
-* Print the linked list of movie
-*/
-void printMovieList(struct movie* list)
-{
-    while (list != NULL)
-    {
-        printMovie(list);
-        list = list->next;
-    }
-}
-
-/*
 *   Process the file provided as an argument to the program to
 *   create a linked list of movie structs and print out the list.
 *   Compile the program as follows:
@@ -216,32 +212,66 @@ int main(int argc, char *argv[])
     // Create movie linked list
     struct movie* list = processFile(argv[1]);
 
-    // Test printMovieList
-    printf("\n");
-    printMovieList(list);
+    for (;;) { 
+        // Provide choices for data 
+        printf("\n\n1. Show movies released in the specified year"); 
+        printf("\n2. Show highest rated movie for each year");
+        printf("\n3. Show the title and year of release of all movies in a specific language");
+        printf("\n4. Exit from the program");
 
-    // Test printMoviesFromYear
-    printf("\n");
-    printMoviesFromYear(list, 2015);
-    printMoviesFromYear(list, 1200);
+        // Request choice
+        int choice; 
+        printf("\n\nEnter a choice from 1 to 4: ");
+        scanf("%d", &choice);
 
-    // Test printTopMovies
-    printTopMovies(list);
-    printf("\n\n");
+        // Show requested data
+        int year;
+        char lang[20];
 
-    // Test PrintMoviesInLanguage
-    printf("Russian Movies:\n");
-    printMoviesInLanguage(list, "Russian");
+        switch (choice) {
+            case 1: 
+                // Show movies released in the specified year
+                printf("Enter the year for which you want to see movies: ");
+                scanf("%d", &year);
+                printMoviesFromYear(list, year);
+                break;
+            case 2: 
+                // Show highest rated movie for each year
+                printTopMovies(list);
+                break;
+            case 3: 
+                // Show the title and year of release of all movies in a specific language
+                printf("Enter the language for which you want to see movies: ");
+                scanf("%s", lang);
+                printMoviesInLanguage(list, lang);
+                break;
+            case 4: 
+                // Exit from the program
+                return EXIT_SUCCESS;
+        }
+    }
 
-    printf("\nGerman Movies:\n");
-    printMoviesInLanguage(list, "German");
-
-    printf("\nRussian Movies:\n");
-    printMoviesInLanguage(list, "Russian");
-
-    printf("\ngerman Movies:\n");
-    printMoviesInLanguage(list, "german");
-
-    return EXIT_SUCCESS;
+//    // Test printMoviesFromYear
+//    printf("\n");
+//    printMoviesFromYear(list, 2015);
+//    printMoviesFromYear(list, 1200);
+//
+//    // Test printTopMovies
+//    printTopMovies(list);
+//    printf("\n\n");
+//
+//    // Test PrintMoviesInLanguage
+//    printf("Russian Movies:\n");
+//    printMoviesInLanguage(list, "Russian");
+//
+//    printf("\nGerman Movies:\n");
+//    printMoviesInLanguage(list, "German");
+//
+//    printf("\nRussian Movies:\n");
+//    printMoviesInLanguage(list, "Russian");
+//
+//    printf("\ngerman Movies:\n");
+//    printMoviesInLanguage(list, "german");
+//    return EXIT_SUCCESS;
 }
 
