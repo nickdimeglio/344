@@ -248,30 +248,10 @@ int main(int argc, char *argv[])
             case 4: 
                 // Exit from the program
                 return EXIT_SUCCESS;
+            default:
+                // Invalid input
+                printf("You entered an incorrect choice. Try again.");
+                break;
         }
     }
-
-//    // Test printMoviesFromYear
-//    printf("\n");
-//    printMoviesFromYear(list, 2015);
-//    printMoviesFromYear(list, 1200);
-//
-//    // Test printTopMovies
-//    printTopMovies(list);
-//    printf("\n\n");
-//
-//    // Test PrintMoviesInLanguage
-//    printf("Russian Movies:\n");
-//    printMoviesInLanguage(list, "Russian");
-//
-//    printf("\nGerman Movies:\n");
-//    printMoviesInLanguage(list, "German");
-//
-//    printf("\nRussian Movies:\n");
-//    printMoviesInLanguage(list, "Russian");
-//
-//    printf("\ngerman Movies:\n");
-//    printMoviesInLanguage(list, "german");
-//    return EXIT_SUCCESS;
 }
-
