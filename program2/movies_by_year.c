@@ -12,6 +12,25 @@ struct movie
     struct movie* next;
 };
 
+/* 
+ * Show movies released in a specified year
+*/
+void printMoviesFromYear(struct movie* list, int year) {
+    bool moviePrinted = false; 
+    while (list != NULL)		// Walk through linked list
+    {
+        if (list->year == year) {
+        printf("%s\n", list->title);
+        moviePrinted = true;		// Match found, don't print "no data" message
+        }
+        list = list->next;
+    }
+    if (!moviePrinted) {
+	// No match found, let user know
+        printf("No data about movies released in the year %u", year); 
+    }
+}
+
 /* Parse the current line which is comma delimited and create a
 *  movie struct with the data in this line
 */
@@ -38,34 +57,11 @@ struct movie* createMovie(char* currLine)
     return currMovie;
 }
 
-/* 
- * Show movies released in a specified year
-*/
-void printMoviesFromYear(struct movie* list, int year) {
-    bool moviePrinted = false; 
-    while (list != NULL)		// Walk through linked list
-    {
-        if (list->year == year) {
-        printf("%s\n", list->title);
-        moviePrinted = true;		// Match found, don't print "no data" message
-        }
-        list = list->next;
-    }
-    if (!moviePrinted) {
-	// No match found, let user know
-        printf("No data about movies released in the year %u", year); 
-    }
-
-}
-
 /*
-* Return a linked list of movies by parsing
-* data from each line of the specified file.
+*  TODO: Update this function to process data as specified 
+*  by Assignment 2 requirements 
 */
-struct movie* processFile(char* filePath)
-{
-    // Open the specified file for reading only
-    FILE *movieFile = fopen(filePath, "r");
+struct movie* processFile(FILE* movieFile) {
 
     char* currLine = NULL;
     size_t len = 0;
@@ -105,15 +101,54 @@ struct movie* processFile(char* filePath)
             tail = newNode;
         }
     }
+    int desc = fileno(movieFile);
+    printf("Process file with descriptor: %d\n", desc);
     free(currLine);
     fclose(movieFile);
-    printf("\n\nProcessed file %s and parsed data for %zu movies", filePath, count);
     return head;
 }
 
 
+/* 
+*   TODO: Find the largest file
+*   Finds the largest file with the extension csv in the current
+*   directory whose name starts with the prefix 'movies_' and
+*   then returns a stream with that file open to read.
+*/
+FILE* getLargest() {
+    char fileName[] = "movies.csv";
+    FILE* movieFile = fopen(fileName, "r");
+    return movieFile; 
+}
+
+/* 
+ *  TODO: Find the smallest file
+*   Finds the smallest file with the extension csv in the current
+*   directory whose name starts with the prefix 'movies_' and
+*   then returns a stream with that file open to read.
+*/
+FILE* getSmallest() {
+    char fileName[] = "movies.csv";
+    FILE* movieFile = fopen(fileName, "r");
+    return movieFile; 
+}
+
+/* 
+ *  TODO: Find the specified file, error check
+*   Returns a read-only stream for the file name specified 
+*/
+FILE* getByName() {
+    char fileName[] = "movies.csv";
+    FILE* movieFile = fopen(fileName, "r");
+    return movieFile; 
+}
+
+
+
 /*
- * TODO: Proper description
+ *  Prompt the user to select between processing the largest file
+ *  in the current directory, the smallest file in the current
+ *  directory, or a specific file by name.
 */
 void selectFile() {
 
@@ -122,33 +157,39 @@ void selectFile() {
         printf("\nWhich file do you want to process?");
         printf("\nEnter 1 to pick the largest file");
         printf("\nEnter 2 to pick the smallest file");
-        printf("\nEnter 3 to specifify the name of a file");
+        printf("\nEnter 3 to specify the name of a file");
 
         // Record choice
         int choice;
-        printf("\nEnter a choice from 1 to 3: ");
+        printf("\n\nEnter a choice from 1 to 3: ");
         scanf("%d", &choice);
 
         // Branch accordingly
+        FILE* movieFile = NULL;
         switch (choice) {
             case 1:
-                char* fileName = getLargest();
+                movieFile = getLargest(); 
                 break;
             case 2:
-                char* fileName = getSmallest();
+                movieFile = getSmallest();
                 break;
-            case 3;
-                char* fileName = getByName();
+            case 3:
+                movieFile = getByName();
                 break;
             default:
-                printf("You enetered an incorrect choice. Please try again.");
+                printf("You entered an incorrect choice. Please try again.\n");
                 break;
+        }
+        if (movieFile != NULL) {
+            processFile(movieFile);
+            break;
         }
     }
 }
 
 /*
- *  TODO: Proper description
+ *  Provide the user with a main menu, where they can
+ *  either select a file to process or exit the program.
 */
 
 int main(int argc, char *argv[])
@@ -160,7 +201,7 @@ int main(int argc, char *argv[])
 
         // Record choice
         int choice; 
-        printf("\nEnter a choice 1 or 2: ");
+        printf("\n\nEnter a choice 1 or 2: ");
         scanf("%d", &choice);
 
         // Branch accordingly
@@ -172,7 +213,7 @@ int main(int argc, char *argv[])
                     return EXIT_SUCCESS;
             default:
                     // Incorrect selection
-                    printf("You entered an incorrect choice. Please try again.");
+                    printf("You entered an incorrect choice. Please try again.\n");
                     break;
 
         }
