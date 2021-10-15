@@ -1,7 +1,9 @@
+#include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 
 /* struct for movie information */
@@ -62,7 +64,7 @@ struct movie* createMovie(char* currLine)
 *  by Assignment 2 requirements 
 */
 struct movie* processFile(FILE* movieFile) {
-
+    
     char* currLine = NULL;
     size_t len = 0;
     ssize_t nread;
@@ -110,79 +112,101 @@ struct movie* processFile(FILE* movieFile) {
 
 
 /* 
-*   TODO: Find the largest file
-*   Finds the largest file with the extension csv in the current
-*   directory whose name starts with the prefix 'movies_' and
-*   then returns a stream with that file open to read.
+ *  Returns a stream referring to either the smallest (if findSmallest = true) 
+ *  or the largest (if findSmallest = False) csv file in the provided directory
+ *  whose name starts with the prefix 'movies_'  
 */
-FILE* getLargest() {
-    char fileName[] = "movies.csv";
-    FILE* movieFile = fopen(fileName, "r");
+FILE* getBySize(DIR* searchDir, bool findSmallest) {
+    char* frontRunner = calloc(256, sizeof(char)); // Max filename size is 256
+    long frontRunnerSize = 0L;
+    struct dirent* curr = NULL;
+    int fileCount = 0;
+
+    // Loop through directory to find the largest movie csv 
+    while ((curr = readdir(searchDir)) != NULL) {
+
+        // Skip entry if it is a directory
+        if (curr->d_type == DT_DIR) continue;
+
+        // Skip entry if it doesn't start with "_movies" 
+        if ((strncmp("movies_", curr->d_name, 7) != 0)) continue;
+        
+        // Skip entry if it doesn't end with ".csv" 
+        char* extension = strrchr(curr->d_name, '.');
+        if (!extension || strcmp(".csv", extension) != 0) continue;
+
+        // Get the file's size in bytes
+        FILE* csv = fopen(curr->d_name, "r");
+        fseek(csv, 0L, SEEK_END);
+        long size = ftell(csv);
+
+        // Update the front runner if needed
+        if ((fileCount == 0) || (findSmallest && size < frontRunnerSize) || (!findSmallest && size > frontRunnerSize)) {
+            strcpy(frontRunner, curr->d_name);
+            frontRunnerSize = size;
+        } 
+
+        fileCount++;
+    } 
+    FILE* movieFile = fopen(frontRunner, "r");
+    if (!movieFile) {
+        // No File Found
+        printf("\nThere were no csv files starting with '_movies', sorry.");
+    } else {
+        // Display name of file to be processed
+        printf("Now processing the chosen file named %s\n", frontRunner);
+    }
     return movieFile; 
 }
 
-/* 
- *  TODO: Find the smallest file
-*   Finds the smallest file with the extension csv in the current
-*   directory whose name starts with the prefix 'movies_' and
-*   then returns a stream with that file open to read.
-*/
-FILE* getSmallest() {
-    char fileName[] = "movies.csv";
-    FILE* movieFile = fopen(fileName, "r");
-    return movieFile; 
-}
+ /* 
+  *  TODO: Find the specified file, error check
+ *   Returns a read-only stream for the file name specified 
+ */
+ FILE* getByName() {
+     char fileName[] = "movies.csv";
+     FILE* movieFile = fopen(fileName, "r");
+     return movieFile; 
+ }
+ 
+ 
+ 
+ /*
+  *  Prompt the user to select between processing the largest file
+  *  in the current directory, the smallest file in the current
+  *  directory, or a specific file by name.
+ */
+ void selectFile() {
+ 
+     // File selection menu
+     for (;;) {
+         printf("\nWhich file do you want to process?");
+         printf("\nEnter 1 to pick the largest file");
+         printf("\nEnter 2 to pick the smallest file");
+         printf("\nEnter 3 to specify the name of a file");
 
-/* 
- *  TODO: Find the specified file, error check
-*   Returns a read-only stream for the file name specified 
-*/
-FILE* getByName() {
-    char fileName[] = "movies.csv";
-    FILE* movieFile = fopen(fileName, "r");
-    return movieFile; 
-}
-
-
-
-/*
- *  Prompt the user to select between processing the largest file
- *  in the current directory, the smallest file in the current
- *  directory, or a specific file by name.
-*/
-void selectFile() {
-
-    // File selection menu
-    for (;;) {
-        printf("\nWhich file do you want to process?");
-        printf("\nEnter 1 to pick the largest file");
-        printf("\nEnter 2 to pick the smallest file");
-        printf("\nEnter 3 to specify the name of a file");
-
-        // Record choice
-        int choice;
-        printf("\n\nEnter a choice from 1 to 3: ");
-        scanf("%d", &choice);
-
-        // Branch accordingly
+         // Record choice
+         int choice;
+         printf("\n\nEnter a choice from 1 to 3: ");
+         scanf("%d", &choice);
+ 
+         // Open the current directory for searching, then branch to find the right file
         FILE* movieFile = NULL;
+        DIR* searchDir = opendir("."); 
+
         switch (choice) {
-            case 1:
-                movieFile = getLargest(); 
-                break;
-            case 2:
-                movieFile = getSmallest();
-                break;
-            case 3:
-                movieFile = getByName();
-                break;
+            case 1: movieFile = getBySize(searchDir, false); break;  // Get the largest file
+            case 2: movieFile = getBySize(searchDir, true); break;   // Get the smallest
+            case 3: break; // movieFile = getByName(); break;
             default:
                 printf("You entered an incorrect choice. Please try again.\n");
                 break;
         }
-        if (movieFile != NULL) {
-            processFile(movieFile);
-            break;
+
+        closedir(searchDir);
+
+        if (movieFile != NULL || movieFile == NULL) {
+            return;
         }
     }
 }
