@@ -145,7 +145,6 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
             strcpy(frontRunner, curr->d_name);
             frontRunnerSize = size;
         } 
-
         fileCount++;
     } 
     FILE* movieFile = fopen(frontRunner, "r");
@@ -160,12 +159,24 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
 }
 
  /* 
-  *  TODO: Find the specified file, error check
- *   Returns a read-only stream for the file name specified 
+ *  TODO: Find the specified file, error check
+ *  Returns a read-only stream for the file name specified 
  */
  FILE* getByName() {
-     char fileName[] = "movies.csv";
+     char fileName[256];
+     // Prompt user to provide a file name
+     printf("\nEnter the complete file name: ");
+     scanf("%s", fileName);
+
+     // Return file stream 
      FILE* movieFile = fopen(fileName, "r");
+     if (!movieFile) {
+        // No File Found 
+        printf("The file %s was not found. Try again\n", fileName);
+     } else {
+        // Display name of file to be processed
+        printf("Now processing the chosen file named %s\n", fileName);
+     }
      return movieFile; 
  }
  
@@ -197,7 +208,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
         switch (choice) {
             case 1: movieFile = getBySize(searchDir, false); break;  // Get the largest file
             case 2: movieFile = getBySize(searchDir, true); break;   // Get the smallest
-            case 3: break; // movieFile = getByName(); break;
+            case 3: movieFile = getByName(); break;                  // Get file by name
             default:
                 printf("You entered an incorrect choice. Please try again.\n");
                 break;
@@ -205,7 +216,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
 
         closedir(searchDir);
 
-        if (movieFile != NULL || movieFile == NULL) {
+        if (movieFile != NULL) {
             return;
         }
     }
