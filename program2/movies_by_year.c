@@ -3,111 +3,59 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
-
-
-/* struct for movie information */
-struct movie
-{
-    char* title;
-    int year;
-    struct movie* next;
-};
-
-/* 
- * Show movies released in a specified year
-*/
-void printMoviesFromYear(struct movie* list, int year) {
-    bool moviePrinted = false; 
-    while (list != NULL)		// Walk through linked list
-    {
-        if (list->year == year) {
-        printf("%s\n", list->title);
-        moviePrinted = true;		// Match found, don't print "no data" message
-        }
-        list = list->next;
-    }
-    if (!moviePrinted) {
-	// No match found, let user know
-        printf("No data about movies released in the year %u", year); 
-    }
-}
-
-/* Parse the current line which is comma delimited and create a
-*  movie struct with the data in this line
-*/
-struct movie* createMovie(char* currLine)
-{
-    struct movie* currMovie = malloc(sizeof(struct movie));
-
-    // For use with strtok_r
-    char* saveptr;
-
-    // The first token is the title
-    char* token = strtok_r(currLine, ",", &saveptr);
-    currMovie->title = calloc(strlen(token) + 1, sizeof(char));
-    strcpy(currMovie->title, token);
-
-    // The next token is the year
-    token = strtok_r(NULL, ",", &saveptr);
-    int year = atoi(token);
-    currMovie->year = year;
-
-    // Set the next node to NULL in the newly created movie entry
-    currMovie->next = NULL;
-
-    return currMovie;
-}
+#include <time.h>
 
 /*
-*  TODO: Update this function to process data as specified 
-*  by Assignment 2 requirements 
+*  TODO: Create a new directory named dimeglin.movies.random, where random
+*  is an integer in the range [0, 999999] with permissions rwxr-x---. 
+*  Within the new directory, and using the provided csv, create one file for 
+*  each year in which at least one movie was released. Within each file, write
+*  the titles for all movies released in that year with one on each line.
 */
-struct movie* processFile(FILE* movieFile) {
+void processFile(FILE* movieFile) {
     
     char* currLine = NULL;
     size_t len = 0;
     ssize_t nread;
-    size_t count = 0;
 
-    // The head of the linked list
-    struct movie* head = NULL;
-    // The tail of the linked list
-    struct movie* tail = NULL;
+    /* 
+     * Create a new directory titled dimeglin.movies.random
+    */
+    // srand(time(0));
+    int randInt = rand() % 999999;      
+    char dirName[23];
+    sprintf(dirName, "dimeglin.movies.%d", randInt);
+    mkdir(dirName, 0750);
+//
+//    /*
+//     * Log the file's movies line by line
+//    */
+//    nread = getline(&currLine, &len, movieFile); // Skip the column headers
+//    while ((nread = getline(&currLine, &len, movieFile)) != -1) {
+//
+//        // Retrieve the title and year from the current line
+//        char* saveptr;
+//
+//        // The first token is the title
+//        char* token = strtok_r(currLine, ",", &saveptr);
+//        char* title = calloc(strlen(token) + 1, sizeof(char));
+//        strcpy(title, token);
+//
+//        // The next token is the year
+//        token = strtok_r(NULL, ",", &saveptr);
+//        char* year = calloc(strlen(token) + 1, sizeof(char));
+//        strcpy(year, token);
+//
+//        /*
+//         * Write the title on its own line in the file year.txt
+//        */
+//
+//    }
+//    free(currLine);
+//    fclose(movieFile);
 
-    // Skip the column headers
-    nread = getline(&currLine, &len, movieFile);
-
-    // Read the file line by line
-    while ((nread = getline(&currLine, &len, movieFile)) != -1)
-    {
-        // Get a new movie node corresponding to the current line
-        struct movie* newNode = createMovie(currLine);
-
-        // Increment the count of movies in the file
-        count += 1;
-
-        // Is this the first node in the linked list?
-        if (head == NULL)
-        {
-            // This is the first node in the linked link
-            // Set the head and the tail to this node
-            head = newNode;
-            tail = newNode;
-        }
-        else
-        {
-            // This is not the first node.
-            // Add this node to the list and advance the tail
-            tail->next = newNode;
-            tail = newNode;
-        }
-    }
-    int desc = fileno(movieFile);
-    printf("Process file with descriptor: %d\n", desc);
-    free(currLine);
-    fclose(movieFile);
-    return head;
 }
 
 
@@ -163,7 +111,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
  *  Returns a read-only stream for the file name specified 
  */
  FILE* getByName() {
-     char fileName[256];
+     char fileName[256] = {"\0"};
      // Prompt user to provide a file name
      printf("\nEnter the complete file name: ");
      scanf("%s", fileName);
@@ -217,8 +165,9 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
         closedir(searchDir);
 
         if (movieFile != NULL) {
+            processFile(movieFile);
             return;
-        }
+        } 
     }
 }
 
