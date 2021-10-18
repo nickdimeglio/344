@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#include <unistd.h>
 
 /*
 *  TODO: Create a new directory named dimeglin.movies.random, where random
@@ -15,47 +17,63 @@
 *  the titles for all movies released in that year with one on each line.
 */
 void processFile(FILE* movieFile) {
+    /* 
+     * Generate new name "dimeglin.movies.random", with random in [0, 999999]
+    */
+    srand(time(0));
+    int randInt = rand() % 999999;     
+    char dirName[23];
+    sprintf(dirName, "dimeglin.movies.%d", randInt);
     
+    // If there's no dir with this name, create it. Otherwise, print an error message
+    DIR* dirExists = opendir(dirName); 
+    if (!dirExists) {
+        mkdir(dirName, 0750);
+    }
+    else {
+        printf("SORRY! We've already generated this random number...\n");
+        return;
+    }
+    
+    /*
+     * Log the file's movies line by line
+    */
     char* currLine = NULL;
     size_t len = 0;
     ssize_t nread;
+    nread = getline(&currLine, &len, movieFile); // Skip the column headers
 
-    /* 
-     * Create a new directory titled dimeglin.movies.random
-    */
-    // srand(time(0));
-    int randInt = rand() % 999999;      
-    char dirName[23];
-    sprintf(dirName, "dimeglin.movies.%d", randInt);
-    mkdir(dirName, 0750);
-//
-//    /*
-//     * Log the file's movies line by line
-//    */
-//    nread = getline(&currLine, &len, movieFile); // Skip the column headers
-//    while ((nread = getline(&currLine, &len, movieFile)) != -1) {
-//
-//        // Retrieve the title and year from the current line
-//        char* saveptr;
-//
-//        // The first token is the title
-//        char* token = strtok_r(currLine, ",", &saveptr);
-//        char* title = calloc(strlen(token) + 1, sizeof(char));
-//        strcpy(title, token);
-//
-//        // The next token is the year
-//        token = strtok_r(NULL, ",", &saveptr);
-//        char* year = calloc(strlen(token) + 1, sizeof(char));
-//        strcpy(year, token);
-//
-//        /*
-//         * Write the title on its own line in the file year.txt
-//        */
-//
-//    }
-//    free(currLine);
-//    fclose(movieFile);
+    while ((nread = getline(&currLine, &len, movieFile)) != -1) {
 
+        // Retrieve the title and year from the current line
+        char* saveptr;
+
+        // The first token is the title (add a new line to it)
+        char* token = strtok_r(currLine, ",", &saveptr);
+        char* title = calloc(strlen(token) + 2, sizeof(char));
+        strcpy(title, token);
+        strcat(title, "\n");  
+
+        // The next token is the year. 
+        token = strtok_r(NULL, ",", &saveptr);
+
+        // set yearFileName to the path dimeglin.movies.random/YEAR.txt
+        char* yearFileName = calloc(strlen(dirName) + strlen(token) + strlen(".txt") +  2, sizeof(char));
+        strcpy(yearFileName, dirName);
+        strcat(yearFileName, "/");
+        strcat(yearFileName, token);
+        strcat(yearFileName, ".txt");
+
+        /*
+         * Write the title on its own line in the file year.txt 
+         * inside the new dir dimeglin.movies.random
+        */
+        int yearFile = open(yearFileName, O_RDWR | O_CREAT | O_APPEND, 0640);
+        write(yearFile, title, strlen(title) * sizeof(char));
+        close(yearFile);
+    }
+    free(currLine);
+    fclose(movieFile);
 }
 
 
