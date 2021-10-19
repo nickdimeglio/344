@@ -160,7 +160,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
 
          // Record choice
          int choice;
-         printf("\n\nEnter a choice from 1 to 3: ");
+         printf("\nEnter a choice from 1 to 3: ");
          scanf("%d", &choice);
  
          // Open the current directory for searching, then branch to find the right file
