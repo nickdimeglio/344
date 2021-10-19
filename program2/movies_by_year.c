@@ -28,7 +28,7 @@ void processFile(FILE* movieFile) {
     DIR* dirExists = opendir(dirName); 
     if (!dirExists) {
         mkdir(dirName, 0750);
-        printf("\nCreated directory with the name %s", dirName);
+        printf("\nCreated directory with the name %s\n", dirName);
     }
     else {
         printf("SORRY! We've already generated this random number...\n");
@@ -116,7 +116,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
         printf("\nThere were no csv files starting with '_movies', sorry.");
     } else {
         // Display name of file to be processed
-        printf("Now processing the chosen file named %s\n", frontRunner);
+        printf("Now processing the chosen file named %s", frontRunner);
     }
     return movieFile; 
 }
@@ -138,7 +138,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
         printf("The file %s was not found. Try again\n", fileName);
      } else {
         // Display name of file to be processed
-        printf("Now processing the chosen file named %s\n", fileName);
+        printf("Now processing the chosen file named %s", fileName);
      }
      return movieFile; 
  }
