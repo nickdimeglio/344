@@ -10,16 +10,15 @@
 #include <unistd.h>
 
 /*
-*  TODO: Create a new directory named dimeglin.movies.random, where random
+*  Create a new directory named dimeglin.movies.random, where random
 *  is an integer in the range [0, 999999] with permissions rwxr-x---. 
-*  Within the new directory, and using the provided csv, create one file for 
+*  Within the new directory, using the provided file, create one file for 
 *  each year in which at least one movie was released. Within each file, write
 *  the titles for all movies released in that year with one on each line.
 */
 void processFile(FILE* movieFile) {
-    /* 
-     * Generate new name "dimeglin.movies.random", with random in [0, 999999]
-    */
+
+    // Generate new name "dimeglin.movies.random", with random in [0, 999999]
     srand(time(0));
     int randInt = rand() % 999999;     
     char dirName[23];
@@ -36,7 +35,7 @@ void processFile(FILE* movieFile) {
     }
     
     /*
-     * Log the file's movies line by line
+     * Log the file's movies line by line in separate files for each year
     */
     char* currLine = NULL;
     size_t len = 0;
@@ -45,30 +44,27 @@ void processFile(FILE* movieFile) {
 
     while ((nread = getline(&currLine, &len, movieFile)) != -1) {
 
-        // Retrieve the title and year from the current line
+        // For strtok_r 
         char* saveptr;
 
-        // The first token is the title (add a new line to it)
+        // Get the title and add a newline char
         char* token = strtok_r(currLine, ",", &saveptr);
         char* title = calloc(strlen(token) + 2, sizeof(char));
         strcpy(title, token);
         strcat(title, "\n");  
 
-        // The next token is the year. 
+        // Get the year
         token = strtok_r(NULL, ",", &saveptr);
 
-        // set yearFileName to the path dimeglin.movies.random/YEAR.txt
-        char* yearFileName = calloc(strlen(dirName) + strlen(token) + strlen(".txt") +  2, sizeof(char));
-        strcpy(yearFileName, dirName);
-        strcat(yearFileName, "/");
-        strcat(yearFileName, token);
-        strcat(yearFileName, ".txt");
+        // set yearFilePath to "dimeglin.movies.RANDOM/YEAR.txt"
+        char* yearFilePath = calloc(strlen(dirName) + strlen(token) + strlen(".txt") +  2, sizeof(char));
+        strcpy(yearFilePath, dirName);
+        strcat(yearFilePath, "/");
+        strcat(yearFilePath, token);
+        strcat(yearFilePath, ".txt");
 
-        /*
-         * Write the title on its own line in the file year.txt 
-         * inside the new dir dimeglin.movies.random
-        */
-        int yearFile = open(yearFileName, O_RDWR | O_CREAT | O_APPEND, 0640);
+        // Write the title on a new line in YEAR.txt 
+        int yearFile = open(yearFilePath, O_RDWR | O_CREAT | O_APPEND, 0640);
         write(yearFile, title, strlen(title) * sizeof(char));
         close(yearFile);
     }
@@ -125,7 +121,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
 }
 
  /* 
- *  TODO: Find the specified file, error check
+ *  Find the specified file, error check
  *  Returns a read-only stream for the file name specified 
  */
  FILE* getByName() {
@@ -203,7 +199,7 @@ int main(int argc, char *argv[])
 
         // Record choice
         int choice; 
-        printf("\n\nEnter a choice 1 or 2: ");
+        printf("\nEnter a choice 1 or 2: ");
         scanf("%d", &choice);
 
         // Branch accordingly
