@@ -28,6 +28,7 @@ void processFile(FILE* movieFile) {
     DIR* dirExists = opendir(dirName); 
     if (!dirExists) {
         mkdir(dirName, 0750);
+        printf("\nCreated directory with the name %s", dirName);
     }
     else {
         printf("SORRY! We've already generated this random number...\n");
