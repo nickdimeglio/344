@@ -128,7 +128,7 @@ FILE* getBySize(DIR* searchDir, bool findSmallest) {
  FILE* getByName() {
      char fileName[256] = {"\0"};
      // Prompt user to provide a file name
-     printf("\nEnter the complete file name: ");
+     printf("Enter the complete file name: ");
      scanf("%s", fileName);
 
      // Return file stream 
