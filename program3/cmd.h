@@ -14,7 +14,7 @@ struct cmd {
  * by the user
 */
 void cmdPrint(struct cmd *cmd) {
-    printf("\n%s", cmd->text);
+    printf("n%s", cmd->text);
 }
 
 /* parse a provided string into a cmd */
