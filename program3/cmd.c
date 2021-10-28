@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -16,19 +17,24 @@ struct cmd {
  * by the user
 */
 void cmdPrint(struct cmd *cmd) {
-    printf("%s", cmd->text);
+    printf("%s\n", cmd->text);
 }
 
 /* parse a provided string into a cmd */
 struct cmd *parseCommand(char* cmdString) {
     
-    // Don't parse if the command is a comment 
-    if (*cmdString == '#') {
-        return NULL;
+    // Check if command is a blank
+    bool isBlank = true;
+    for (size_t i = 0; i < strlen(cmdString); i++) {
+        if (!isspace(cmdString[i])) {
+            isBlank = false;
+        }
     }
 
-    // Don't parse if the command is a blank line
-    bool isBlank = true;
+    // Don't parse if line is blank or leads with # 
+    if (isBlank || cmdString[0] == '#') {
+        return NULL;
+    }
 
     // Initalize a cmd struct
     struct cmd *cmd = malloc(sizeof(struct cmd)); 

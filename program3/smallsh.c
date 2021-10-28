@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
         // Fetch command
         char *command = calloc(2049, sizeof(char)); 
         fgets(command, 2049, stdin);
+        command[strlen(command) - 1] = '\0'; // Trim off newline char
 
         // Parse command 
         struct cmd *cmd = parseCommand(command);
@@ -23,11 +24,10 @@ int main(int argc, char *argv[]) {
         // Execute command
         if (cmd) {
             cmdPrint(cmd);
+        }
 
         // Free command memory
         free(command);
         free(cmd);
-        }
-
-    }    
-}
+     }
+}    
