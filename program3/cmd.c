@@ -33,7 +33,7 @@ void cmdPrint(struct cmd *cmd) {
     } else {printf("\nArgs: None\n\n");}
     printf("\nInput: %s", cmd->input);
     printf("\nOutput: %s", cmd->output);
-    printf("\nBackround Process: %s\n", cmd->background ? "Yes" : "No");
+    printf("\nBackground Process: %s\n", cmd->background ? "Yes" : "No");
 }
 
 /* initialize a new instance of the 
