@@ -28,13 +28,12 @@ void cmdPrint(struct cmd *cmd) {
     if (cmd->argc > 1) {
         printf("\nArgs:\n");
         for (size_t i = 0; i < cmd->argc; i++) {
-            printf("    %zu: %s", i, cmd->args[i]);
+            printf("\n    %zu: %s", i, cmd->args[i]);
         }
-        printf("\n");
     } else {printf("\nArgs: None\n\n");}
     printf("\nInput: %s", cmd->input);
     printf("\nOutput: %s", cmd->output);
-    printf("\nBackround Process: %s", cmd->background ? "Yes" : "No");
+    printf("\nBackround Process: %s\n", cmd->background ? "Yes" : "No");
 }
 
 /* initialize a new instance of the 
