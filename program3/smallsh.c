@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
         command[strlen(command) - 1] = '\0'; // Trim off newline char
 
         // Parse command 
-        struct cmd *cmd = parseCommand(command);
+        struct cmd *cmd = cmdParse(command);
 
         // Execute command
         if (cmd) {
