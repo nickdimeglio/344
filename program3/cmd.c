@@ -32,6 +32,9 @@ void cmdPrint(struct cmd *cmd) {
         }
         printf("\n");
     } else {printf("\nArgs: None\n\n");}
+    printf("\nInput: %s", cmd->input);
+    printf("\nOutput: %s", cmd->output);
+    printf("\nBackround Process: %s", cmd->background ? "Yes" : "No");
 }
 
 /* initialize a new instance of the 
@@ -112,12 +115,14 @@ struct cmd *cmdParse(char* cmdString) {
     while(token) {
         // Option: Input redirection
         if (strcmp(token, "<") == 0) {
+            token = strtok_r(NULL, " ", &saveptr);
             free(cmd->input);
             cmd->input = malloc(strlen(token) + 1);
             strcpy(cmd->input, token);
         }
         // Option: Output redirection
         else if (strcmp(token, ">") == 0) {
+            token = strtok_r(NULL, " ", &saveptr);
             free(cmd->output);
             cmd->output = malloc(strlen(token) + 1);
             strcpy(cmd->output, token);
