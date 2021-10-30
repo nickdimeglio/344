@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
         command[strlen(command) - 1] = '\0'; // Trim off newline char
 
         // Expand variable $$
-        strcpy(command, cmdExpand(command));
+        command = cmdExpand(command);
 
         // Parse command 
         struct cmd *cmd = cmdParse(command);

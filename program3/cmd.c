@@ -11,8 +11,8 @@ struct cmd;
 struct cmd *cmdParse(char* cmd);
 void cmdPrint(struct cmd *cmd);
 
-/* struct for smallsh commands */
 struct cmd {
+    /* struct for smallsh commands */
     char *text;
     char *cmd;
     char *args[512];
@@ -22,31 +22,10 @@ struct cmd {
     char *output;
 };
 
-/* initialize a new instance of the 
- * command struct
-*/
-struct cmd *cmdInit() {
-    struct cmd *cmd = malloc(sizeof(struct cmd)); 
-
-    // Input defaults to stdin
-    cmd->input = malloc(strlen("stdin") + 1);
-    strcpy(cmd->input, "stdin");
-
-    // Output defaults to stdout
-    cmd->output = malloc(strlen("stdout") + 1);
-    strcpy(cmd->output, "stdout");
-
-    // cmd executes in foreground by default
-    cmd->background = false; 
-
-    return cmd;
-}
-
-/* for each arg in the command, expand all
- * instances of "$$" into the process ID of smallsh
-*/
 char* cmdExpand(char* cmdString) {
-    printf("\nExpanding command...");
+    /* for each arg in the command, expand all
+     * instances of "$$" into the process ID of smallsh
+    */
 
     // Get smallsh's PID as string for variable expansion
     long pid = getpid();
@@ -79,9 +58,28 @@ char* cmdExpand(char* cmdString) {
     return expanded;
 }
 
-/* parse a string into a cmd struct
-*/
+struct cmd *cmdInit() {
+    /* initialize a new instance of the command struct
+    */
+   struct cmd *cmd = malloc(sizeof(struct cmd)); 
+
+   // Input defaults to stdin
+   cmd->input = malloc(strlen("stdin") + 1);
+   strcpy(cmd->input, "stdin");
+
+   // Output defaults to stdout
+   cmd->output = malloc(strlen("stdout") + 1);
+   strcpy(cmd->output, "stdout");
+
+   // cmd executes in foreground by default
+   cmd->background = false; 
+
+   return cmd;
+}
+
 struct cmd *cmdParse(char* cmdString) {
+    /* parse a string into a cmd struct
+    */
    
     // Identify blank commands since they can be skipped
     bool isBlank = true;
@@ -148,21 +146,5 @@ struct cmd *cmdParse(char* cmdString) {
         token = strtok_r(NULL, " ", &saveptr);
     } 
     return cmd;
-}
-
-/* print the command in a digestable format
-*/
-void cmdPrint(struct cmd *cmd) {
-    printf("\nText Entered: %s", cmd->text);
-    printf("\nCommand: %s", cmd->cmd);
-    if (cmd->argc > 1) {
-        printf("\nArgs:\n");
-        for (size_t i = 0; i < cmd->argc; i++) {
-            printf("\n    %zu: %s", i, cmd->args[i]);
-        }
-    } else {printf("\nArgs: None\n\n");}
-    printf("\nInput: %s", cmd->input);
-    printf("\nOutput: %s", cmd->output);
-    printf("\nBackground Process: %s\n", cmd->background ? "Yes" : "No");
 }
 
