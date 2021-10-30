@@ -77,7 +77,7 @@ char* cmdExpand(char* cmdString) {
     while (i < strlen(cmdString)) {
         if (cmdString[i] == '$' && cmdString[i] == cmdString[i + 1]) {
             // Expand "$$"- must realign string indices after 
-           strcpy(expanded, smallshPID);
+           strcat(expanded, smallshPID);
            j += strlen(smallshPID);
            i += 2;
         }
