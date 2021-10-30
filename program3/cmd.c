@@ -76,11 +76,15 @@ char* cmdExpand(char* cmdString) {
     int j = 0;
     while (i < strlen(cmdString)) {
         if (cmdString[i] == '$' && cmdString[i] == cmdString[i + 1]) {
+            // Expand "$$"- must realign string indices after 
            strcpy(expanded, smallshPID);
            j += strlen(smallshPID);
+           i += 2;
         }
         else {
+            // Copy char
             expanded[j] = cmdString[i];
+            i++;
             j++;
         }
     }
