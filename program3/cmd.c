@@ -6,8 +6,11 @@
 #include <unistd.h>
 
 /* smallsh command struct with accompanying functions */
+char* cmdExpand(char* cmdString);
 struct cmd;
 struct cmd *cmdParse(char* cmd);
+void cmdPrint(struct cmd *cmd);
+
 
 /* struct for smallsh commands */
 struct cmd {
@@ -19,22 +22,6 @@ struct cmd {
     char *input;
     char *output;
 };
-
-/* print the command in a digestable format
-*/
-void cmdPrint(struct cmd *cmd) {
-    printf("\nText Entered: %s", cmd->text);
-    printf("\nCommand: %s", cmd->cmd);
-    if (cmd->argc > 1) {
-        printf("\nArgs:\n");
-        for (size_t i = 0; i < cmd->argc; i++) {
-            printf("\n    %zu: %s", i, cmd->args[i]);
-        }
-    } else {printf("\nArgs: None\n\n");}
-    printf("\nInput: %s", cmd->input);
-    printf("\nOutput: %s", cmd->output);
-    printf("\nBackground Process: %s\n", cmd->background ? "Yes" : "No");
-}
 
 /* initialize a new instance of the 
  * command struct
@@ -59,7 +46,6 @@ struct cmd *cmdInit() {
 /* for each arg in the command, expand all
  * instances of "$$" into the process ID of smallsh
 */
-/* TODO: Implement cmdExpand */
 char* cmdExpand(char* cmdString) {
     printf("\nExpanding command...");
 
@@ -163,5 +149,21 @@ struct cmd *cmdParse(char* cmdString) {
         token = strtok_r(NULL, " ", &saveptr);
     } 
     return cmd;
+}
+
+/* print the command in a digestable format
+*/
+void cmdPrint(struct cmd *cmd) {
+    printf("\nText Entered: %s", cmd->text);
+    printf("\nCommand: %s", cmd->cmd);
+    if (cmd->argc > 1) {
+        printf("\nArgs:\n");
+        for (size_t i = 0; i < cmd->argc; i++) {
+            printf("\n    %zu: %s", i, cmd->args[i]);
+        }
+    } else {printf("\nArgs: None\n\n");}
+    printf("\nInput: %s", cmd->input);
+    printf("\nOutput: %s", cmd->output);
+    printf("\nBackground Process: %s\n", cmd->background ? "Yes" : "No");
 }
 
