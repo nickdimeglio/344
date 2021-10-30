@@ -162,7 +162,6 @@ struct cmd *cmdParse(char* cmdString) {
         // Get next argument or option
         token = strtok_r(NULL, " ", &saveptr);
     } 
-
     return cmd;
 }
 
