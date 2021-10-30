@@ -76,9 +76,7 @@ struct cmd *cmdParse(char* cmdString) {
     }
 
     // Don't parse if line is blank or leads with # 
-    if (isBlank || cmdString[0] == '#') {
-        return NULL;
-    }
+    if (isBlank || cmdString[0] == '#') { return NULL; }
 
     // Initalize a cmd struct
     struct cmd *cmd = cmdInit();
@@ -87,7 +85,6 @@ struct cmd *cmdParse(char* cmdString) {
     // Store the full command text 
     cmd->text = calloc(strlen(cmdString) + 1, sizeof(char));
     strcpy(cmd->text, cmdString);
-
 
 
     /* ----------------------------------
