@@ -11,7 +11,6 @@ struct cmd;
 struct cmd *cmdParse(char* cmd);
 void cmdPrint(struct cmd *cmd);
 
-
 /* struct for smallsh commands */
 struct cmd {
     char *text;
@@ -62,13 +61,13 @@ char* cmdExpand(char* cmdString) {
     int j = 0;
     while (i < strlen(cmdString)) {
         if (cmdString[i] == '$' && cmdString[i] == cmdString[i + 1]) {
-            // Expand "$$"- must realign string indices after 
-           strcat(expanded, smallshPID);
-           j += strlen(smallshPID);
-           i += 2;
-        }
-        else {
-            // Copy char
+            // Expand "$$" 
+            strcat(expanded, smallshPID);
+            // Must realign string indices to continue
+            j += strlen(smallshPID);
+            i += 2;
+        } else {
+            // No expansion needed
             expanded[j] = cmdString[i];
             i++;
             j++;
