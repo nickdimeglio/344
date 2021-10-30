@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 /* smallsh command struct with accompanying functions */
 struct cmd;
@@ -19,8 +20,7 @@ struct cmd {
     char *output;
 };
 
-/* print the command's original text entered
- * by the user
+/* print the command in a digestable format
 */
 void cmdPrint(struct cmd *cmd) {
     printf("\nText Entered: %s", cmd->text);
@@ -60,14 +60,41 @@ struct cmd *cmdInit() {
  * instances of "$$" into the process ID of smallsh
 */
 /* TODO: Implement cmdExpand */
-void cmdExpand(struct cmd *cmd) {
+char* cmdExpand(char* cmdString) {
+    printf("\nExpanding command...");
+
+    // Get smallsh's PID as string for variable expansion
+    long pid = getpid();
+    char *smallshPID = calloc(32, sizeof(char));
+    sprintf(smallshPID, "%ld", pid);
+
+    // Expanded string may be longer, allocate new memory
+    char *expanded = calloc(2049, sizeof(char));
+
+    // Copy over each char from cmdString, or PID if "$$" is encountered
+    int i = 0;
+    int j = 0;
+    while (i < strlen(cmdString)) {
+        if (cmdString[i] == '$' && cmdString[i] == cmdString[i + 1]) {
+           strcpy(expanded, smallshPID);
+           j += strlen(smallshPID);
+        }
+        else {
+            expanded[j] = cmdString[i];
+            j++;
+        }
+    }
+    printf("\nOld: %s", cmdString);
+    printf("\nNew: %s", expanded);
+    free(smallshPID);
+    return expanded;
 }
 
 /* parse a string into a cmd struct
 */
 struct cmd *cmdParse(char* cmdString) {
    
-    // Check if command is a blank
+    // Identify blank commands since they can be skipped
     bool isBlank = true;
     for (size_t i = 0; i < strlen(cmdString); i++) {
         if (!(isspace(cmdString[i]) || isblank(cmdString[i]))) {
@@ -75,10 +102,10 @@ struct cmd *cmdParse(char* cmdString) {
         }
     }
 
-    // Don't parse if line is blank or leads with # 
+    // Don't parse if command is blank or a comment (leads with #) 
     if (isBlank || cmdString[0] == '#') { return NULL; }
 
-    // Initalize a cmd struct
+    // Initialize struct to separate command from args and options
     struct cmd *cmd = cmdInit();
     cmd->argc = 0;
 
@@ -94,9 +121,6 @@ struct cmd *cmdParse(char* cmdString) {
 
     char* saveptr; 
     char* token = strtok_r(cmdString, " ", &saveptr);
-
-    // Skip blank commands and comments 
-    if (!token || token[0] == '#') return NULL;
 
     // Store the command
     cmd->cmd = calloc(strlen(token) + 1, sizeof(char));
