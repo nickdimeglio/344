@@ -67,13 +67,10 @@ void cmdExpand(struct cmd *cmd) {
 */
 struct cmd *cmdParse(char* cmdString) {
    
-    /* OLD comment/blank check 
-     *
-     *
     // Check if command is a blank
     bool isBlank = true;
     for (size_t i = 0; i < strlen(cmdString); i++) {
-        if (!isspace(cmdString[i])) {
+        if (!(isspace(cmdString[i]) || isblank(cmdString[i]))) {
             isBlank = false;
         }
     }
@@ -82,7 +79,6 @@ struct cmd *cmdParse(char* cmdString) {
     if (isBlank || cmdString[0] == '#') {
         return NULL;
     }
-    */
 
     // Initalize a cmd struct
     struct cmd *cmd = cmdInit();
