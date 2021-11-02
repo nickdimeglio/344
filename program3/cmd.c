@@ -142,7 +142,7 @@ struct cmd *cmdParse(char* cmdString) {
         }
         // Option: Background process
         // (must be at end of command string)
-        else if (strcmp(token, "&") == 0 && *saveptr == '\0') {
+        else if (strcmp(token, "&") == 0 && !saveptr) {
             cmd->background = true;
         }
         // New Argument
@@ -190,19 +190,24 @@ int cmdExecute(struct cmd *cmd) {
     */
     if (strcmp(cmd->cmd, "exit") == 0) {
         // Call built-in exit 
-        smallshExit();
-        return status();
+        // smallshExit();
+        // return status();
+        return 0;
     } else if (strcmp(cmd->cmd, "cd") == 0) {
         // Call built-in cd
-        cd(cmd);    
-        return status();
+        // cd(cmd);    
+        // return status();
+        return 0;
     } else if (strcmp(cmd->cmd, "status") == 0) {
         // Call built-in status
-        return status();
+        // return status();
+        return 0;
     } else {
         // Call non-built-in command 
-        return execute_external(cmd);
+        // return execute_external(cmd);
+        return 0;
     }
+}
 
 void smallshExit() {
     /* TODO: Implement smallshExit()
