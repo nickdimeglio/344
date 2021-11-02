@@ -142,7 +142,7 @@ struct cmd *cmdParse(char* cmdString) {
         }
         // Option: Background process
         // (must be at end of command string)
-        else if (strcmp(token, "&") == 0 && *saveptr == '\0') {
+        else if (strcmp(token, "&") == 0 && (!saveptr || *saveptr == '\0')) {
             cmd->background = true;
         }
         // New Argument
