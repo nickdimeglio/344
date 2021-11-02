@@ -16,14 +16,15 @@ struct smallsh {
     struct processNode *processesHead;
     struct processNode *processesTail;
     int processCount;
+    int status; 
 };
 
 struct processNode {
     /* doubly linked list node for smallsh processes */
     long pid;
     int status;
-    struct processDLL *prev;
-    struct processDLL *next;
+    struct processNode *prev;
+    struct processNode *next;
 };
 
 int cmdExecute(struct smallsh *smallsh, struct cmd *cmd);
