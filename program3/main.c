@@ -16,13 +16,14 @@ int main(int argc, char *argv[]) {
     // Initialize smallsh instance
     struct smallsh *shell = malloc(sizeof(struct smallsh));
     shell->lastCommand = NULL;
+    shell->status = EXIT_SUCCESS;
     shell->processesHead = NULL;
     shell->processesTail = NULL;
     shell->processCount = 0;
 
     for(;;) {
         // Print prompt 
-        printf(":");
+        printf(": ");
 
         // Fetch command
         char *command = calloc(2049, sizeof(char)); 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]) {
 
         // Execute command
         if (cmd) {
-            smallshExecute(shell, cmd); 
+            shell->status = smallshExecute(shell, cmd); 
         }
 
         // Free command memory

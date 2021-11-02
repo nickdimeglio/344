@@ -45,13 +45,11 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         }
         
         getcwd(newdir, 256);
-        printf("\nOld: %s", dir);
-        printf("\nNew: %s\n", newdir);
         return shell->status;
     } 
     // Built-in status command
     else if (strcmp(cmd->cmd, "status") == 0) {
-        printf("%d", shell->status);
+        printf("exit value %d\n", shell->status);
         return shell->status;
     } 
     // Non-built-in command
@@ -60,37 +58,6 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         // return execute_external(cmd);
         return 0;
     }
-}
-
-void smallshExit() {
-    /* TODO: Implement smallshExit()
-     *
-     * Kill any existing processes or jobs the shell
-     * has started and terminate the shell.
-    */
-       
-    // Loop through the shell's processes and kill
-    
-    // Terminate the shell
-}
-
-void cd(struct cmd *cmd) {
-    // cd([path]) -> void
-    //      if path:
-    //          change to directory specified by path argument
-    //      else:
-    //          change to directory specified by $HOME
-}
-
-void status() {
-// status() -> void
-//      ignore built-in commands
-//
-//      print out either the exit status or the terminating 
-//      signal of the last foreground process ran by the shell
-//
-//      if the command is run before any foreground command is run,
-//      return exit status 0
 }
 
 void execute_external(){
