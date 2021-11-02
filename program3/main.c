@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
 
         // Execute command
         if (cmd) {
+            smallshExecute(shell, cmd); 
             cmdPrint(cmd);
         }
 

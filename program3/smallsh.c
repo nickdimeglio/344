@@ -11,7 +11,7 @@
  *
  * -------------------------------------------------*/
 
-int cmdExecute(struct smallsh *shell, struct cmd *cmd) {
+int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     /* TODO: Add status() and execute_external(). Add
      *       background processing.
      *

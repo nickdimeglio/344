@@ -27,7 +27,7 @@ struct processNode {
     struct processNode *next;
 };
 
-int cmdExecute(struct smallsh *smallsh, struct cmd *cmd);
+int smallshExecute(struct smallsh *smallsh, struct cmd *cmd);
 void smallshExit();
 void cd(struct cmd *cmd);
 void status();
