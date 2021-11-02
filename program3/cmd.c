@@ -146,11 +146,11 @@ void cmdPrint(struct cmd *cmd) {
     printf("\nText Entered: %s", cmd->text);
     printf("\nCommand: %s", cmd->cmd);
     if (cmd->argc > 1) {
-        printf("\nArgs:\n");
+        printf("\nArgs:");
         for (size_t i = 0; i < cmd->argc; i++) {
-            printf("\n    %zu: %s", i, cmd->args[i]);
+            printf("    %zu: %s", i, cmd->args[i]);
         }
-    } else {printf("\nArgs: None\n\n");}
+    } else {printf("\nArgs: None");}
     printf("\nInput: %s", cmd->input);
     printf("\nOutput: %s", cmd->output);
     printf("\nBackground Process: %s\n", cmd->background ? "Yes" : "No");

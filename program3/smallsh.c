@@ -33,12 +33,20 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     // Built-in cd command
     else if (strcmp(cmd->cmd, "cd") == 0) {
         char *path = cmd->args[0];
+        char *dir = calloc(256, sizeof(char));
+        char *newdir = calloc(256, sizeof(char));
+        getwd(dir);
+
         if (path) {
             chdir(path);
         }
         else {
             chdir("$HOME");
         }
+        
+        getwd(newdir);
+        printf("\nOld: %s", dir);
+        printf("\nNew: %s", newdir);
         return shell->status;
     } 
     // Built-in status command
