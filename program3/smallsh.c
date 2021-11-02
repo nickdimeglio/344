@@ -35,7 +35,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         char *path = cmd->args[0];
         char *dir = calloc(256, sizeof(char));
         char *newdir = calloc(256, sizeof(char));
-        getwd(dir);
+        getcwd(dir, 256);
 
         if (path) {
             chdir(path);
@@ -44,7 +44,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
             chdir("$HOME");
         }
         
-        getwd(newdir);
+        getcwd(newdir, 256);
         printf("\nOld: %s", dir);
         printf("\nNew: %s", newdir);
         return shell->status;
