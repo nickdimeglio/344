@@ -106,6 +106,9 @@ struct cmd *cmdParse(char* cmdString) {
     struct cmd *cmd = cmdInit();
     cmd->argc = 0;
 
+    // Expand the variable $$
+    cmdString = cmdExpand(cmdString);
+
     // Store the full command text 
     cmd->text = calloc(strlen(cmdString) + 1, sizeof(char));
     strcpy(cmd->text, cmdString);
