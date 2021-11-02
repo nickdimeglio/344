@@ -136,6 +136,7 @@ struct cmd *cmdParse(char* cmdString) {
         // Get next argument or option
         token = strtok_r(NULL, " ", &saveptr);
     } 
+    cmdPrint(cmd);
     return cmd;
 }
 
