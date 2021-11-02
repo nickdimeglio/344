@@ -5,9 +5,14 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-/* smallsh command struct with accompanying functions */
-char* cmdExpand(char* cmdString);
+/* ---------------------------------------------------
+ *
+ * smallsh command struct with accompanying functions 
+ *
+ * -------------------------------------------------*/
 struct cmd;
+char* cmdExpand(char* cmdString);
+struct cmd *cmdInit();
 struct cmd *cmdParse(char* cmd);
 void cmdPrint(struct cmd *cmd);
 
@@ -22,6 +27,11 @@ struct cmd {
     char *output;
 };
 
+/* ---------------------------------------------------
+ *
+ *  FUNCTIONS FOR PARSING USER INPUT INTO CMD STRUCTS
+ *
+ * --------------------------------------------------*/
 char* cmdExpand(char* cmdString) {
     /* for each arg in the command, expand all
      * instances of "$$" into the process ID of smallsh
@@ -141,7 +151,6 @@ struct cmd *cmdParse(char* cmdString) {
             strcpy(cmd->args[cmd->argc], token);
             cmd->argc++;
         }
-
         // Get next argument or option
         token = strtok_r(NULL, " ", &saveptr);
     } 
@@ -164,3 +173,75 @@ void cmdPrint(struct cmd *cmd) {
     printf("\nOutput: %s", cmd->output);
     printf("\nBackground Process: %s\n", cmd->background ? "Yes" : "No");
 }
+
+
+/* ---------------------------------------------------
+ *
+ *  FUNCTIONS FOR EXECUTING SMALLSH CMD STRUCTS
+ *
+ * --------------------------------------------------*/
+int cmdExecute(struct cmd *cmd) {
+    /* TODO: Add status() and execute_external(). Add
+     *       background processing.
+     *
+     * Execute the provided smallsh cmd using built-in
+     * commands or commands found with the $PATH variable
+     * Returns exit status from the executed command
+    */
+    if (strcmp(cmd->cmd, "exit") == 0) {
+        // Call built-in exit 
+        smallshExit();
+        return status();
+    } else if (strcmp(cmd->cmd, "cd") == 0) {
+        // Call built-in cd
+        cd(cmd);    
+        return status();
+    } else if (strcmp(cmd->cmd, "status") == 0) {
+        // Call built-in status
+        return status();
+    } else {
+        // Call non-built-in command 
+        return execute_external(cmd);
+    }
+
+void smallshExit() {
+    /* TODO: Implement smallshExit()
+     *
+     * Kill any existing processes or jobs the shell
+     * has started and terminate the shell.
+    */
+       
+    // Loop through the shell's processes and kill
+    
+    // Terminate the shell
+}
+
+void cd(struct cmd *cmd) {
+    // cd([path]) -> void
+    //      if path:
+    //          change to directory specified by path argument
+    //      else:
+    //          change to directory specified by $HOME
+}
+
+// status() -> void
+//      ignore built-in commands
+//
+//      print out either the exit status or the terminating 
+//      signal of the last foreground process ran by the shell
+//
+//      if the command is run before any foreground command is run,
+//      return exit status 0
+
+
+// excecute_external() -> void
+//      fork off a child
+//          use the PATH variable to look for non-built in comamnds (allow shell scripts)
+//          use a function from the exec() family to run the command
+//          if command fails
+//              print error message
+//              set exit status to 1
+//      terminate the child process
+//
+//      set exit status
+
