@@ -13,6 +13,12 @@
 
 int main(int argc, char *argv[]) {
 
+    // Initialize smallsh instance
+    struct smallsh *shell = malloc(sizeof(struct smallsh));
+    shell->lastCommand = NULL;
+    shell->processesHead = NULL;
+    shell->processesTail = NULL;
+    shell->processCount = 0;
 
     for(;;) {
         // Print prompt 

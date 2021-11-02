@@ -6,18 +6,26 @@
 
 /* ---------------------------------------------------
  *
- * smallsh struct with accompanying functions 
+ * smallsh struct with accompanying function declarations
  *
  * -------------------------------------------------*/
 
 struct smallsh {
     /* struct for smallsh shell */
     struct cmd *lastCommand; 
-    struct processDLL *processes;
+    struct processNode *processesHead;
+    struct processNode *processesTail;
     int processCount;
 };
 
-struct processDLL;
+struct processNode {
+    /* doubly linked list node for smallsh processes */
+    long pid;
+    int status;
+    struct processDLL *prev;
+    struct processDLL *next;
+};
+
 int cmdExecute(struct smallsh *smallsh, struct cmd *cmd);
 void smallshExit();
 void cd(struct cmd *cmd);

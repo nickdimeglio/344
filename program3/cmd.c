@@ -8,7 +8,7 @@
 
 /* ---------------------------------------------------
  *
- *  FUNCTIONS FOR PARSING USER INPUT INTO CMD STRUCTS
+ *  functions for the smallsh cmd struct
  *
  * --------------------------------------------------*/
 char* cmdExpand(char* cmdString) {
@@ -50,20 +50,20 @@ char* cmdExpand(char* cmdString) {
 struct cmd *cmdInit() {
     /* initialize a new instance of the command struct
     */
-   struct cmd *cmd = malloc(sizeof(struct cmd)); 
+    struct cmd *cmd = malloc(sizeof(struct cmd)); 
+     
+    // Input defaults to stdin
+    cmd->input = malloc(strlen("stdin") + 1);
+    strcpy(cmd->input, "stdin");
 
-   // Input defaults to stdin
-   cmd->input = malloc(strlen("stdin") + 1);
-   strcpy(cmd->input, "stdin");
+    // Output defaults to stdout
+    cmd->output = malloc(strlen("stdout") + 1);
+    strcpy(cmd->output, "stdout");
 
-   // Output defaults to stdout
-   cmd->output = malloc(strlen("stdout") + 1);
-   strcpy(cmd->output, "stdout");
+    // cmd executes in foreground by default
+    cmd->background = false; 
 
-   // cmd executes in foreground by default
-   cmd->background = false; 
-
-   return cmd;
+    return cmd;
 }
 
 struct cmd *cmdParse(char* cmdString) {

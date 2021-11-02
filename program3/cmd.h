@@ -4,7 +4,8 @@
 
 /* ---------------------------------------------------
  *
- * smallsh command struct with accompanying functions 
+ * smallsh command struct with accompanying 
+ * declarations
  *
  * -------------------------------------------------*/
 struct cmd {

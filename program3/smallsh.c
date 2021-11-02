@@ -6,17 +6,10 @@
 
 /* ---------------------------------------------------
  *
- * smallsh struct with accompanying functions 
+ * functions for the smallsh struct 
  *
  * -------------------------------------------------*/
-struct processDLL {
-    /* doubly linked list of smallsh processes */
-    long pid;
-    int status;
-    struct processDLL *prev;
-    struct processDLL *next;
-};
- 
+
 int cmdExecute(struct smallsh *smallsh, struct cmd *cmd) {
     /* TODO: Add status() and execute_external(). Add
      *       background processing.
