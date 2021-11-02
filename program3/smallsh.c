@@ -41,7 +41,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
             chdir(path);
         }
         else {
-            chdir("$HOME");
+            chdir(getenv("$HOME"));
         }
         
         getcwd(newdir, 256);
