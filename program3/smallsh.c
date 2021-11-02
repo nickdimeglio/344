@@ -37,7 +37,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         char *newdir = calloc(256, sizeof(char));
         getcwd(dir, 256);
 
-        if (path) {
+        if (cmd->argc > 0) {
             chdir(path);
         }
         else {
