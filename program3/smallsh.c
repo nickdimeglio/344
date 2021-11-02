@@ -46,7 +46,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         
         getcwd(newdir, 256);
         printf("\nOld: %s", dir);
-        printf("\nNew: %s", newdir);
+        printf("\nNew: %s\n", newdir);
         return shell->status;
     } 
     // Built-in status command
