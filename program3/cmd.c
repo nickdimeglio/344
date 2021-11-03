@@ -52,14 +52,8 @@ struct cmd *cmdInit() {
 
     // Arguments default to NULL
     cmd->argv = calloc(512, 2049);
-     
-    // Input defaults to stdin
-    cmd->input = malloc(strlen("stdin") + 1);
-    strcpy(cmd->input, "stdin");
-
-    // Output defaults to stdout
-    cmd->output = malloc(strlen("stdout") + 1);
-    strcpy(cmd->output, "stdout");
+    cmd->input = NULL;
+    cmd->output = NULL;
 
     // cmd executes in foreground by default
     cmd->background = false; 
@@ -105,14 +99,12 @@ struct cmd *cmdParse(char* cmdString) {
         // Option: Input redirection
         if (strcmp(token, "<") == 0) {
             token = strtok_r(NULL, " ", &saveptr);
-            free(cmd->input);
             cmd->input = malloc(strlen(token) + 1);
             strcpy(cmd->input, token);
         }
         // Option: Output redirection
         else if (strcmp(token, ">") == 0) {
             token = strtok_r(NULL, " ", &saveptr);
-            free(cmd->output);
             cmd->output = malloc(strlen(token) + 1);
             strcpy(cmd->output, token);
         }

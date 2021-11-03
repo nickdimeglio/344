@@ -55,20 +55,35 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
 int execute_external(struct smallsh *shell, struct cmd *cmd){
     pid_t spawnpid = fork();
     switch (spawnpid) {
-        case -1:
+        case -1: {
             return 1; // couldn't generate child process 
             break;
-        case 0: {   // Build an argument list to pass to execvp 
-                    execvp(cmd->argv[0], cmd->argv);
-                    exit(EXIT_FAILURE); // execvp only returns if command failed
+        }
+        case 0: {
+            // Redirect stdin if needed
+            if (cmd->input) {
+                FILE *input = fopen(cmd->input, "r");
+                int newfileno = dup2(STDIN_FILENO, fileno(input));
+                if (newfileno < 0) {
+                    exit(1); // Redirect failed, return smallsh failure status 
                 }
+            } 
+            // Redirect stdout if needed
+            if (cmd->output) {
+                FILE *output = fopen(cmd->output, "w");
+                int newfileno = dup2(STDOUT_FILENO, fileno(output));
+                if (newfileno < 0) {
+                    exit(1); // Redirect failed, return smallsh failure status 
+                }
+            }
+            execvp(cmd->argv[0], cmd->argv);
+            exit(1); // execvp only returns if command failed
+        }
         default: {
-                    // Child process provides new shell status
-        		    int status;
-                    waitpid(spawnpid, &status, 0);
-                    if (status) {
-                        return 1;
-                    } else {return 0;}
-                 }
+            // Child process provides new shell status
+            int status;
+            waitpid(spawnpid, &status, 0);
+            return status;
+        }
     }
 } 
