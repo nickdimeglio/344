@@ -67,11 +67,11 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 if (!input) {
                     printf("cannot open %s for input\n", cmd->input);
                     fflush(NULL);
-                    exit(1);
+                    exit(1);        // File not found
                 } else {
                     int newfileno = dup2(fileno(input), STDIN_FILENO);
                     if (newfileno < 0) {
-                        exit(1); // Redirect failed, return smallsh failure status 
+                        exit(1);    // Redirect failed
                     }
                 } 
             }
@@ -80,10 +80,12 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 FILE *output = fopen(cmd->output, "w");
                 if (!output) {
                     printf("cannot open %s for output\n", cmd->output);
+                    fflush(NULL);
+                    exit(1);        // File not found
                 } else {
                     int newfileno = dup2(fileno(output), STDOUT_FILENO);
                     if (newfileno < 0) {
-                        exit(1); // Redirect failed, return smallsh failure status 
+                        exit(1);    // Redirect failed
                     }
                 }
             }
@@ -92,16 +94,23 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             exit(1); 
         }
         default: {
-            // Child process provides new shell status
-            int status;
-            waitpid(spawnpid, &status, 0);
-            if (status) {
-                // Non-zero status means execvp failed
-                return 1;
-            } else {
-                return 0;
+            // Pause smallsh for foreground processes 
+            if (!cmd->background) {
+                int status; // Child process provides new shell status
+                waitpid(spawnpid, &status, 0);
+                if (status) {
+                    // Non-zero status means execvp failed
+                    return 1;
+                } else {
+                    return 0;
+                }
+                return status;
+            } 
+            // Don't pause for background processes
+            else {
+                return shell->status; 
             }
-            return status;
+
         }
-    }
-} 
+    } 
+}
