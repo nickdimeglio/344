@@ -76,9 +76,9 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 }
         default: {
                     // Child process provides new shell status
-		    int status;
+        		    int status;
                     waitpid(spawnpid, &status, 0);
-		    return status;
+		            return status;
                  }
     }
 //          if command fails
