@@ -11,7 +11,7 @@
  * -------------------------------------------------*/
 
 struct smallsh {
-    /* struct for smallsh shell */
+    /* struct for smallsh */
     struct cmd *lastCommand; 
     struct processNode *processesHead;
     struct processNode *processesTail;
@@ -31,6 +31,6 @@ int smallshExecute(struct smallsh *smallsh, struct cmd *cmd);
 void smallshExit();
 void cd(struct cmd *cmd);
 void status();
-void execute_external();
+void execute_external(struct smallsh *shell, struct cmd *cmd);
 
 #endif

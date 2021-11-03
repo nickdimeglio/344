@@ -49,6 +49,9 @@ struct cmd *cmdInit() {
     /* initialize a new instance of the command struct
     */
     struct cmd *cmd = malloc(sizeof(struct cmd)); 
+
+    // Arguments default to NULL
+    cmd->args = calloc(512, 2049);
      
     // Input defaults to stdin
     cmd->input = malloc(strlen("stdin") + 1);

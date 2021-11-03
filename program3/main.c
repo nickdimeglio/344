@@ -38,8 +38,9 @@ int main(int argc, char *argv[]) {
             shell->status = smallshExecute(shell, cmd); 
         }
 
-        // Free command memory
+        // Free command string and previous shell command
         free(command);
-        free(cmd);
+        free(shell->lastCommand);
+        shell->lastCommand = cmd;
      }
 }    

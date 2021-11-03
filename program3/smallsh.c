@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include "cmd.h"
 #include "smallsh.h"
@@ -12,8 +14,7 @@
  * -------------------------------------------------*/
 
 int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
-    /* TODO: Add status() and execute_external(). Add
-     *       background processing.
+    /* TODO: Close child processes
      *
      * Execute the provided smallsh cmd using built-in
      * commands or commands found with the $PATH variable
@@ -33,18 +34,11 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     // Built-in cd command
     else if (strcmp(cmd->cmd, "cd") == 0) {
         char *path = cmd->args[0];
-        char *dir = calloc(256, sizeof(char));
-        char *newdir = calloc(256, sizeof(char));
-        getcwd(dir, 256);
-
         if (cmd->argc > 0) {
             chdir(path);
-        }
-        else {
+        } else {
             chdir(getenv("HOME"));
         }
-        
-        getcwd(newdir, 256);
         return shell->status;
     } 
     // Built-in status command
@@ -60,11 +54,29 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     }
 }
 
-void execute_external(){
-// excecute_external() -> void
-//      fork off a child
-//          use the PATH variable to look for non-built in comamnds (allow shell scripts)
-//          use a function from the exec() family to run the command
+void execute_external(struct smallsh *shell, struct cmd *cmd){
+    pid_t spawnpid = fork();
+    switch (spawnpid) {
+        case -1:
+            shell->status = 1;
+            break;
+        case 0: {   // Build an argument list to pass to execlp 
+                    char **argv = calloc(cmd->argc + 2, 2049);
+                    strcpy(argv[0], cmd->cmd);
+                    for (size_t i = 0; i < cmd->argc; i++) {
+                        argv[i + 1] = cmd->args[i];
+                    }
+                    execlp(cmd->cmd, *cmd->args);
+                    shell->status = 1; // execlp only returns on failure
+                    break;
+                }
+        default: {
+                    // Child process provides new shell status
+                    waitpid(spawnpid, &(shell->status), 0);
+                    shell->status = 0; 
+                    break;
+                 }
+    }
 //          if command fails
 //              print error message
 //              set exit status to 1
@@ -72,4 +84,3 @@ void execute_external(){
 //
 //      set exit status
 } 
-
