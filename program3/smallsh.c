@@ -66,7 +66,7 @@ void execute_external(struct smallsh *shell, struct cmd *cmd){
                     for (size_t i = 0; i < cmd->argc; i++) {
                         argv[i + 1] = cmd->args[i];
                     }
-                    execlp(cmd->cmd, *cmd->args);
+                    execlp(*argv);
                     shell->status = 1; // execlp only returns on failure
                     break;
                 }
