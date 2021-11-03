@@ -108,9 +108,46 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             } 
             // Don't pause for background processes
             else {
+                trackProcess(shell, spawnpid);
                 return shell->status; 
             }
 
         }
     } 
+}
+
+void trackProcess(struct smallsh *shell, pid_t pid) {
+    /* 
+     * Add pid to shell's linked list of background
+     * processes
+    */
+    struct processNode* node = malloc(sizeof(struct processNode));
+
+    node->pid = pid;
+    if (!shell->processesHead) {
+        // First background process of shell is head and tail of linked list
+        shell->processesHead = node;
+        shell->processesTail = node;
+
+        shell->processesHead->prev = NULL;
+        shell->processesHead->next = shell->processesTail;
+
+        shell->processesTail->prev = shell->processesHead;
+        shell->processesTail->next = NULL;
+    } 
+    else {
+        // Additional background process gets placed after tail
+        shell->processesTail->next = node;
+        node->prev = shell->processesTail;
+        node->next = NULL;
+        shell->processesTail = node;
+    }
+}
+
+void removeProcess(struct smallsh *shell, pid_t pid) {
+    /*
+     * Remove pid from shell's linked list of
+     * background processes
+    */
+
 }

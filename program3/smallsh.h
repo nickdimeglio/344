@@ -21,7 +21,7 @@ struct smallsh {
 
 struct processNode {
     /* doubly linked list node for smallsh processes */
-    long pid;
+    pid_t pid;
     int status;
     struct processNode *prev;
     struct processNode *next;
@@ -32,5 +32,6 @@ void smallshExit();
 void cd(struct cmd *cmd);
 void status();
 int execute_external(struct smallsh *shell, struct cmd *cmd);
+void trackProcess(struct smallsh *shell, pid_t pid);
 
 #endif
