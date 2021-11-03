@@ -31,6 +31,6 @@ int smallshExecute(struct smallsh *smallsh, struct cmd *cmd);
 void smallshExit();
 void cd(struct cmd *cmd);
 void status();
-void execute_external(struct smallsh *shell, struct cmd *cmd);
+int execute_external(struct smallsh *shell, struct cmd *cmd);
 
 #endif

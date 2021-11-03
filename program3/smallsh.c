@@ -48,7 +48,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     } 
     // Non-built-in command
     else {
-        return execute_external(cmd);
+        return execute_external(shell, cmd);
     }
 }
 
