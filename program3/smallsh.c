@@ -66,7 +66,9 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                     // Child process provides new shell status
         		    int status;
                     waitpid(spawnpid, &status, 0);
-	        	    return status;
+                    if (status) {
+                        return 1;
+                    } else {return 0;}
                  }
     }
 } 
