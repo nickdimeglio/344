@@ -84,6 +84,12 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             // Child process provides new shell status
             int status;
             waitpid(spawnpid, &status, 0);
+            if (status) {
+                // Non-zero status means execvp failed
+                return 1;
+            } else {
+                return 0;
+            }
             return status;
         }
     }
