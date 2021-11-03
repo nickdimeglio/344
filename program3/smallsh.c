@@ -66,6 +66,8 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 FILE *input = fopen(cmd->input, "r");
                 int newfileno = dup2(fileno(input), STDIN_FILENO);
                 if (newfileno < 0) {
+                    printf("cannot open %s for input", cmd->input);
+                    fflush(NULL);
                     exit(1); // Redirect failed, return smallsh failure status 
                 }
             } 
@@ -74,6 +76,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 FILE *output = fopen(cmd->output, "w");
                 int newfileno = dup2(fileno(output), STDOUT_FILENO);
                 if (newfileno < 0) {
+                    printf("cannot open %s for output", cmd->output);
                     exit(1); // Redirect failed, return smallsh failure status 
                 }
             }
