@@ -65,13 +65,13 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             if (cmd->input) {
                 FILE *input = fopen(cmd->input, "r");
                 if (!input) {
-                    printf("cannot open %s for input", cmd->input);
+                    printf("cannot open %s for input\n", cmd->input);
                     fflush(NULL);
                     exit(1);
                 } else {
                     int newfileno = dup2(fileno(input), STDIN_FILENO);
                     if (newfileno < 0) {
-                    exit(1); // Redirect failed, return smallsh failure status 
+                    	exit(1); // Redirect failed, return smallsh failure status 
                     }
                 } 
             }
@@ -79,13 +79,12 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             if (cmd->output) {
                 FILE *output = fopen(cmd->output, "w");
                 if (!output) {
-                    printf("cannot open %s for output", cmd->output);
+                    printf("cannot open %s for output\n", cmd->output);
+		    fflush(NULL);
                 } else {
                     int newfileno = dup2(fileno(output), STDOUT_FILENO);
                     if (newfileno < 0) {
-                        printf("cannot open %s for output", cmd->output);
                         exit(1); // Redirect failed, return smallsh failure status 
-                    }
                 }
             }
             execvp(cmd->argv[0], cmd->argv);
