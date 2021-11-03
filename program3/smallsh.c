@@ -22,7 +22,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     */
 
     // Built-in exit command
-    if (strcmp(cmd->cmd, "exit") == 0) {
+    if (strcmp(cmd->argv[0], "exit") == 0) {
         // Close child processes
         struct processNode *process = shell->processesHead;
         while (process) {
@@ -32,8 +32,8 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         exit(EXIT_SUCCESS);
     } 
     // Built-in cd command
-    else if (strcmp(cmd->cmd, "cd") == 0) {
-        char *path = cmd->args[0];
+    else if (strcmp(cmd->argv[0], "cd") == 0) {
+        char *path = cmd->argv[1];
         if (cmd->argc > 0) {
             chdir(path);
         } else {
@@ -42,7 +42,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         return shell->status;
     } 
     // Built-in status command
-    else if (strcmp(cmd->cmd, "status") == 0) {
+    else if (strcmp(cmd->argv[0], "status") == 0) {
         printf("exit value %d\n", shell->status);
         return shell->status;
     } 
@@ -59,19 +59,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             return 1; // couldn't generate child process 
             break;
         case 0: {   // Build an argument list to pass to execvp 
-                    char *argv[cmd->argc + 2];
-
-                    // First element is the command name
-                    argv[0] = malloc(sizeof(cmd->cmd));
-                    strcpy(argv[0], cmd->cmd);
-
-                    // Remaining elements (except last) are command + args
-                    for (size_t i = 0; i < cmd->argc; i++) {
-                        argv[i + 1] = malloc(sizeof(cmd->args[i]));
-                        strcpy(argv[i + 1], cmd->args[i]);
-                    }
-                    argv[cmd->argc + 1] = NULL;  // Last element is null
-                    execvp(argv[0], argv);
+                    execvp(cmd->argv[0], cmd->argv);
                     exit(EXIT_FAILURE); // execvp only returns if command failed
                 }
         default: {

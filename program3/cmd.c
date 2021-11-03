@@ -51,7 +51,7 @@ struct cmd *cmdInit() {
     struct cmd *cmd = malloc(sizeof(struct cmd)); 
 
     // Arguments default to NULL
-    cmd->args = calloc(512, 2049);
+    cmd->argv = calloc(512, 2049);
      
     // Input defaults to stdin
     cmd->input = malloc(strlen("stdin") + 1);
@@ -102,10 +102,6 @@ struct cmd *cmdParse(char* cmdString) {
     char* saveptr; 
     char* token = strtok_r(cmdString, " ", &saveptr);
 
-    // Store the command
-    cmd->cmd = calloc(strlen(token) + 1, sizeof(char));
-    strcpy(cmd->cmd, token);
-
     // Store arguments and options
     token = strtok_r(NULL, " ", &saveptr);
     while(token) {
@@ -130,8 +126,8 @@ struct cmd *cmdParse(char* cmdString) {
         }
         // New Argument
         else {
-            cmd->args[cmd->argc] = malloc(strlen(token) + 1);
-            strcpy(cmd->args[cmd->argc], token);
+            cmd->argv[cmd->argc] = malloc(strlen(token) + 1);
+            strcpy(cmd->argv[cmd->argc], token);
             cmd->argc++;
         }
         // Get next argument or option
@@ -144,11 +140,11 @@ void cmdPrint(struct cmd *cmd) {
     /* print the command in a digestable format
     */
     printf("\nText Entered: %s", cmd->text);
-    printf("\nCommand: %s", cmd->cmd);
+    printf("\nCommand: %s", cmd->argv[0]);
     if (cmd->argc > 1) {
         printf("\nArgs:");
         for (size_t i = 0; i < cmd->argc; i++) {
-            printf("    %zu: %s", i, cmd->args[i]);
+            printf("    %zu: %s", i, cmd->argv[i]);
         }
     } else {printf("\nArgs: None");}
     printf("\nInput: %s", cmd->input);

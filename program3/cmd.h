@@ -11,8 +11,7 @@
 struct cmd {
     /* struct for smallsh commands */
     char *text;
-    char *cmd;
-    char **args;
+    char **argv;
     int argc;
     bool background;
     char *input;

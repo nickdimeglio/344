@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 
         // Execute command
         if (cmd) {
+            // cmdPrint(cmd);
             shell->status = smallshExecute(shell, cmd); 
         }
 
