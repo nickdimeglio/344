@@ -85,10 +85,11 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                     int newfileno = dup2(fileno(output), STDOUT_FILENO);
                     if (newfileno < 0) {
                         exit(1); // Redirect failed, return smallsh failure status 
+                    }
                 }
-            }
             execvp(cmd->argv[0], cmd->argv);
             exit(1); // execvp only returns if command failed
+            }
         }
         default: {
             // Child process provides new shell status
