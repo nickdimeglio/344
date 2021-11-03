@@ -72,7 +72,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                     }
                     argv[cmd->argc + 2] = NULL;  // Last element is null
                     execvp(argv[0], argv);
-                    return 1; // execlp only returns on failure
+                    exit(EXIT_FAILURE); // execvp only returns if command failed
                 }
         default: {
                     // Child process provides new shell status
@@ -81,10 +81,4 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
 	        	    return status;
                  }
     }
-//          if command fails
-//              print error message
-//              set exit status to 1
-//      terminate the child process
-//
-//      set exit status
 } 
