@@ -88,7 +88,8 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 }
             }
             execvp(cmd->argv[0], cmd->argv);
-            exit(1); // execvp only returns if command failed
+            printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed
+            exit(1); 
         }
         default: {
             // Child process provides new shell status
