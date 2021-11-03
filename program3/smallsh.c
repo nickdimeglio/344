@@ -48,17 +48,15 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     } 
     // Non-built-in command
     else {
-        // Call non-built-in command 
-        // return execute_external(cmd);
-        return 0;
+        return execute_external(cmd);
     }
 }
 
-void execute_external(struct smallsh *shell, struct cmd *cmd){
+int execute_external(struct smallsh *shell, struct cmd *cmd){
     pid_t spawnpid = fork();
     switch (spawnpid) {
         case -1:
-            shell->status = 1;
+            return 1; // couldn't generate child process 
             break;
         case 0: {   // Build an argument list to pass to execlp 
                     char **argv = calloc(cmd->argc + 2, 2049);
@@ -67,14 +65,13 @@ void execute_external(struct smallsh *shell, struct cmd *cmd){
                         argv[i + 1] = cmd->args[i];
                     }
                     execvp(argv[0], argv);
-                    shell->status = 1; // execlp only returns on failure
-                    break;
+                    return 1; // execlp only returns on failure
                 }
         default: {
                     // Child process provides new shell status
-                    waitpid(spawnpid, &(shell->status), 0);
-                    shell->status = 0; 
-                    break;
+		    int status;
+                    waitpid(spawnpid, &status, 0);
+		    return status;
                  }
     }
 //          if command fails
