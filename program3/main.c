@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
     for(;;) {
         // Print prompt 
         printf(": ");
+        fflush(NULL);
 
         // Fetch command
         char *command = calloc(2049, sizeof(char)); 
