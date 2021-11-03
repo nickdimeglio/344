@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -63,7 +64,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             // Redirect stdin if needed
             if (cmd->input) {
                 FILE *input = fopen(cmd->input, "r");
-                int newfileno = dup2(STDIN_FILENO, fileno(input));
+                int newfileno = dup2(fileno(input), STDIN_FILENO);
                 if (newfileno < 0) {
                     exit(1); // Redirect failed, return smallsh failure status 
                 }
@@ -71,7 +72,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             // Redirect stdout if needed
             if (cmd->output) {
                 FILE *output = fopen(cmd->output, "w");
-                int newfileno = dup2(STDOUT_FILENO, fileno(output));
+                int newfileno = dup2(fileno(output), STDOUT_FILENO);
                 if (newfileno < 0) {
                     exit(1); // Redirect failed, return smallsh failure status 
                 }
