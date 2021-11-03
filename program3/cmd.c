@@ -101,9 +101,6 @@ struct cmd *cmdParse(char* cmdString) {
 
     char* saveptr; 
     char* token = strtok_r(cmdString, " ", &saveptr);
-
-    // Store arguments and options
-    token = strtok_r(NULL, " ", &saveptr);
     while(token) {
         // Option: Input redirection
         if (strcmp(token, "<") == 0) {
