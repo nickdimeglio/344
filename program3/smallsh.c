@@ -60,7 +60,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             break;
         case 0: {   // Build an argument list to pass to execlp 
                     char **argv = calloc(cmd->argc + 2, 2049);
-                    strcpy(argv[0], cmd->cmd);
+                    strcpy(*argv[0], cmd->cmd);
                     for (size_t i = 0; i < cmd->argc; i++) {
                         argv[i + 1] = cmd->args[i];
                     }
