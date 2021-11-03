@@ -122,6 +122,8 @@ void trackProcess(struct smallsh *shell, pid_t pid) {
      * processes
     */
     struct processNode* node = malloc(sizeof(struct processNode));
+    node->prev = NULL;
+    node->next = NULL;
 
     node->pid = pid;
     if (!shell->processesHead) {
@@ -129,17 +131,13 @@ void trackProcess(struct smallsh *shell, pid_t pid) {
         shell->processesHead = node;
         shell->processesTail = node;
 
-        shell->processesHead->prev = NULL;
         shell->processesHead->next = shell->processesTail;
-
         shell->processesTail->prev = shell->processesHead;
-        shell->processesTail->next = NULL;
     } 
     else {
         // Additional background process gets placed after tail
         shell->processesTail->next = node;
         node->prev = shell->processesTail;
-        node->next = NULL;
         shell->processesTail = node;
     }
 }
