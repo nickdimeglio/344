@@ -36,8 +36,8 @@ int main(int argc, char *argv[]) {
 
         // Execute command
         if (cmd) {
-            cmdPrint(cmd);
-            // shell->status = smallshExecute(shell, cmd); 
+            // cmdPrint(cmd);
+            shell->status = smallshExecute(shell, cmd); 
         }
 
         // Free command string and previous shell command
