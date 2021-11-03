@@ -59,7 +59,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             return 1; // couldn't generate child process 
             break;
         case 0: {   // Build an argument list to pass to execvp 
-                    char *argv[cmd->argc + 3];
+                    char *argv[cmd->argc + 2];
 
                     // First element is the command name
                     argv[0] = malloc(sizeof(cmd->cmd));
@@ -70,7 +70,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                         argv[i + 1] = malloc(sizeof(cmd->args[i]));
                         strcpy(argv[i + 1], cmd->args[i]);
                     }
-                    argv[cmd->argc + 2] = NULL;  // Last element is null
+                    argv[cmd->argc + 1] = NULL;  // Last element is null
                     execvp(argv[0], argv);
                     exit(EXIT_FAILURE); // execvp only returns if command failed
                 }
