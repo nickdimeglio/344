@@ -5,14 +5,14 @@
 /* ---------------------------------------------------
  *
  * smallsh command struct with accompanying 
- * declarations
+ * function declarations
  *
  * -------------------------------------------------*/
 struct cmd {
     /* struct for smallsh commands */
     char *text;
     char *cmd;
-    char *args[512];
+    char **args;
     int argc;
     bool background;
     char *input;

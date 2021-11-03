@@ -41,8 +41,6 @@ char* cmdExpand(char* cmdString) {
             j++;
         }
     }
-    printf("\nOld: %s", cmdString);
-    printf("\nNew: %s", expanded);
     free(smallshPID);
     return expanded;
 }
@@ -51,6 +49,9 @@ struct cmd *cmdInit() {
     /* initialize a new instance of the command struct
     */
     struct cmd *cmd = malloc(sizeof(struct cmd)); 
+
+    // Arguments default to NULL
+    cmd->args = calloc(512, 2049);
      
     // Input defaults to stdin
     cmd->input = malloc(strlen("stdin") + 1);
@@ -145,11 +146,11 @@ void cmdPrint(struct cmd *cmd) {
     printf("\nText Entered: %s", cmd->text);
     printf("\nCommand: %s", cmd->cmd);
     if (cmd->argc > 1) {
-        printf("\nArgs:\n");
+        printf("\nArgs:");
         for (size_t i = 0; i < cmd->argc; i++) {
-            printf("\n    %zu: %s", i, cmd->args[i]);
+            printf("    %zu: %s", i, cmd->args[i]);
         }
-    } else {printf("\nArgs: None\n\n");}
+    } else {printf("\nArgs: None");}
     printf("\nInput: %s", cmd->input);
     printf("\nOutput: %s", cmd->output);
     printf("\nBackground Process: %s\n", cmd->background ? "Yes" : "No");
