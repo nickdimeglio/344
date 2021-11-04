@@ -21,6 +21,7 @@ struct smallsh {
 
 struct processNode {
     /* doubly linked list node for smallsh processes */
+    char *command;
     pid_t pid;
     int status;
     struct processNode *prev;

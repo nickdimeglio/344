@@ -25,10 +25,10 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     // Built-in exit command
     if (strcmp(cmd->argv[0], "exit") == 0) {
         // Close child processes
-        struct processNode *process = shell->processesHead;
-        while (process) {
+        struct processNode *node = shell->processesHead;
+        while (node) {
             // close process
-            process = process->next;
+            node = node->next;
         }
         exit(EXIT_SUCCESS);
     } 
@@ -124,6 +124,7 @@ void trackProcess(struct smallsh *shell, pid_t pid) {
     struct processNode* node = malloc(sizeof(struct processNode));
     node->prev = NULL;
     node->next = NULL;
+    node->command = malloc(strlen(shell->lastCommand->text));
 
     node->pid = pid;
     if (!shell->processesHead) {

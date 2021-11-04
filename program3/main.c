@@ -21,6 +21,12 @@ int main(int argc, char *argv[]) {
     shell->processCount = 0;
 
     for(;;) {
+        // Check for zombie processes
+        struct processNode *node = shell->processesHead;
+        while (node) {
+            printf("Checking this command with pid %d: %s", node->pid, node->command);
+            node = node->next;
+        }
         // Print prompt 
         printf(": ");
         fflush(NULL);
