@@ -47,7 +47,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     else if (strcmp(cmd->argv[0], "status") == 0) {
         if (shell->statusIsSignal) {
             // Must inspect status if last process did not terminate normally
-            printf("terminated by signal %d", WTERMSIG(shell->status));
+            printf("terminated by signal %d\n", WTERMSIG(shell->status));
         }
         else {
             printf("exit value %d\n", shell->status);
