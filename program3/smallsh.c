@@ -35,7 +35,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     // Built-in cd command
     else if (strcmp(cmd->argv[0], "cd") == 0) {
         char *path = cmd->argv[1];
-        if (cmd->argc > 0) {
+        if (path) {
             chdir(path);
         } else {
             chdir(getenv("HOME"));
