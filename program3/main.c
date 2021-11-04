@@ -27,9 +27,16 @@ int main(int argc, char *argv[]) {
             int status;
             bool zombie = waitpid(node->pid, &status, WNOHANG);
             if (zombie) {
-                printf("background pid %d is done: terminated by signal %d\n", 
-                        node->pid, 
-                        WEXITSTATUS(status));
+                printf("background pid %d is done: ", node->pid);
+                fflush(NULL);
+                if (WIFEXITED(status)) {
+                    // Child terminated normally
+                    printf("exit value %d", WEXITSTATUS(status));
+                }
+                else {
+                    // Child terminated because of a signal
+                    printf("terminated by signal %d", WTERMSIG(status));
+                }
                 fflush(NULL);
                 removeProcess(shell, node);
             }
