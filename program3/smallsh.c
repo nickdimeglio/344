@@ -154,6 +154,8 @@ void removeProcess(struct smallsh *shell, struct processNode *node) {
                 struct processNode *temp = curr->next->next;
                 free(curr->next);
                 curr->next = temp;
+            } else {
+                curr = curr->next;
             }
         }
     }
