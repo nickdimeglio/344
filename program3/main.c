@@ -18,7 +18,6 @@ int main(int argc, char *argv[]) {
     struct smallsh *shell = malloc(sizeof(struct smallsh));
     shell->status = EXIT_SUCCESS;
     shell->processesHead = NULL;
-    shell->processesTail = NULL;
     shell->processCount = 0;
 
     for(;;) {
