@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     // Initialize smallsh instance
     struct smallsh *shell = malloc(sizeof(struct smallsh));
     shell->status = EXIT_SUCCESS;
+    shell->statusIsSignal = false;
     shell->processesHead = NULL;
     shell->processCount = 0;
 

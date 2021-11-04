@@ -45,7 +45,14 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     } 
     // Built-in status command
     else if (strcmp(cmd->argv[0], "status") == 0) {
-        printf("exit value %d\n", shell->status);
+        if (shell->statusIsSignal) {
+            // Must inspect status if last process did not terminate normally
+            printf("terminated by signal %d", WTERMSIG(shell->status));
+        }
+        else {
+            printf("exit value %d\n", shell->status);
+        }
+        fflush(NULL);
         return shell->status;
     } 
     // Non-built-in command
@@ -165,13 +172,17 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 // Pause smallsh for foreground processes 
                 int status; 
                 waitpid(spawnpid, &status, 0);
-                if (status) {
-                    return 1;   // Non-zero status means execvp failed
-                } else {
-                    return 0;
+                if (WIFEXITED(status)) {
+                    // Shell status is 0 or 1 on normal exit
+                    if (WEXITSTATUS(status)) {return 1;} else {return 0;}
                 }
-                return status;
-            } 
+                else {
+                    // If terminated by signal, shell status is that signal
+                    printf("terminated by signal %d\n", WTERMSIG(status));
+                    shell->statusIsSignal = false;
+                    return status;
+                }
+            }
             else {
                 // Don't pause for background processes
                 trackProcess(shell, cmd, spawnpid);
@@ -179,9 +190,8 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 fflush(NULL);
                 return shell->status; 
             }
-
-        }
-    } 
+        } 
+    }
 }
 
 void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
@@ -229,3 +239,4 @@ void removeProcess(struct smallsh *shell, struct processNode *node) {
         }
     }
 }
+

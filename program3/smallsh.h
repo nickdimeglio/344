@@ -16,6 +16,7 @@ struct smallsh {
     struct processNode *processesHead;
     int processCount;
     int status; 
+    bool statusIsSignal;
 };
 
 struct processNode {
