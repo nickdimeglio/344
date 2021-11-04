@@ -100,6 +100,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             }
             if (newInput) {
                 // Only update output if background or user specified
+                // Input redirection is needed
                 FILE *input = fopen(newInput, "r");
                 if (!input) {
                     printf("cannot open %s for input\n", cmd->input);
@@ -154,6 +155,14 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             }
             else {
                 // Foreground children exit on SIGINT
+                sigset_t sigint;
+                sigaddset(&sigint, SIGINT);
+                struct sigaction exitOnSIGINT = {
+                    .sa_handler = SIG_DFL,
+                    .sa_mask = sigint,
+                    0,
+                };
+                sigaction(SIGINT, &exitOnSIGINT, NULL);
             }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed
