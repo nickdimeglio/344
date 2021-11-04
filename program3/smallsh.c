@@ -136,6 +136,8 @@ void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
         node->next = shell->processesHead;
         shell->processesHead = node;
     }
+
+    printf("background pid is %d\n", pid);
 }
 
 void removeProcess(struct smallsh *shell, struct processNode *node) {
