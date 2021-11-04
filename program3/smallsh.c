@@ -125,8 +125,13 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 }
                 free(newOutput);
             }
+            /*  -------------------------------------------
+             * Must define rules for handling SIGINT, as
+             * they vary between foreground and background
+             * children.
+            -------------------------------------------- */
             if (cmd->background) {
-                // Background children should ignore SIGINT 
+                // Background children ignore SIGINT
                 sigset_t sigint;
                 sigaddset(&sigint, SIGINT);
                 struct sigaction ignoreSIGINT = { 
@@ -134,8 +139,19 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                     .sa_mask = sigint,
                     0,
                 };
-                sigaction(SIGINT, &ignoreSIGINT, NULL);
+                sigaction(SIGINT, &ignoreSIGINT, NULL);  
 
+            }
+            else {
+                // Foreground children exit on SIGINT
+                sigset_t sigint;
+                sigaddset(&sigint, SIGINT);
+                struct sigaction exitOnSIGINT = {
+                    .sa_handler = SIG_DFL,
+                    .sa_mask = sigint,
+                    0,
+                };
+                sigaction(SIGINT, &exitOnSIGINT, NULL);
             }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed
