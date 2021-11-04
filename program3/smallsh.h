@@ -14,7 +14,6 @@ struct smallsh {
     /* struct for smallsh */
     struct cmd *lastCommand; 
     struct processNode *processesHead;
-    struct processNode *processesTail;
     int processCount;
     int status; 
 };
@@ -24,7 +23,6 @@ struct processNode {
     char *command;
     pid_t pid;
     int status;
-    struct processNode *prev;
     struct processNode *next;
 };
 

@@ -122,49 +122,38 @@ void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
      * processes
     */
     struct processNode* node = malloc(sizeof(struct processNode));
-    node->prev = NULL;
-    node->next = NULL;
     node->command = malloc(strlen(cmd->text));
     strcpy(node->command, cmd->text);
 
     node->pid = pid;
     if (!shell->processesHead) {
-        // First background process of shell is head and tail of linked list
+        // First background process of shell 
         shell->processesHead = node;
-        shell->processesTail = node;
+        node->next = NULL;
     } 
     else {
-        // Additional background process gets placed after tail
-        shell->processesTail->next = node;
-        node->prev = shell->processesTail;
-        shell->processesTail = node;
+        // Additional processes enter at front
+        node->next = shell->processesHead;
+        shell->processesHead = node;
     }
 }
 
 void removeProcess(struct smallsh *shell, struct processNode *node) {
     /*
      * Remove pid from shell's linked list of
-     * background processes. Linked list must not be empty.
+     * background processes. Linked list should not be empty.
     */
     struct processNode *curr = shell->processesHead;
-    while (curr) {
-        if (curr == node) {
-            if (node == shell->processesHead) {
-                // Removing head of LL
-                shell->processesHead = node->next;
-                free(node);
-            }
-            else if (node == shell->processesTail) {
-                // Removing tail of LL
-                shell->processesTail = node->prev;
-                shell->processesTail->next = NULL;
-                free(node);
-            }
-            else {
-                // Removing node from the middle of LL
-                node->prev->next = node->next;
-                node->next->prev = node->prev;
-                free(node);
+    if (curr == node) {
+        // Removing head
+        shell->processesHead = node->next;
+        free(node);
+    } else {
+        while (curr->next) {
+            if (curr->next == node) {
+                struct processNode *temp = curr->next->next;
+                free(curr->next);
+                curr->next = temp;
             }
         }
     }
