@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
             waitpid(node->pid, status, WNOHANG);
             if (status) {
                 // Zombie found. Remove from linked list
-                removeProcess(node);
+                removeProcess(shell, node);
             }
             node = node->next;
         }
