@@ -132,9 +132,6 @@ void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
         // First background process of shell is head and tail of linked list
         shell->processesHead = node;
         shell->processesTail = node;
-
-        shell->processesHead->next = shell->processesTail;
-        shell->processesTail->prev = shell->processesHead;
     } 
     else {
         // Additional background process gets placed after tail
