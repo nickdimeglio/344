@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include "cmd.h"
 #include "smallsh.h"
+#include "smallsh_signals.h"
 
 /*
 *   Process the file provided as an argument to the program to
@@ -15,15 +16,6 @@
 
 int main(int argc, char *argv[]) {
 
-    // Ensure the smallsh process cannot be terminated with CTRL-C 
-    sigset_t sigint;
-    sigaddset(&sigint, SIGINT);
-    struct sigaction ignoreSIGINT = { 
-        .sa_handler = SIG_IGN,
-        .sa_mask = sigint,
-        0,
-    };
-    sigaction(SIGINT, &ignoreSIGINT, NULL);
 
     // Initialize smallsh instance
     struct smallsh *shell = malloc(sizeof(struct smallsh));
@@ -31,6 +23,9 @@ int main(int argc, char *argv[]) {
     shell->statusIsSignal = false;
     shell->processesHead = NULL;
     shell->processCount = 0;
+
+    // Shell process should not stop on Ctrl-C
+    ignoreSIGINT();
 
     for(;;) {
         // Check for zombie processes, remove if found
