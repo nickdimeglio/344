@@ -14,3 +14,16 @@ void ignoreSIGINT() {
     };
     sigaction(SIGINT, &ignoreSIGINT, NULL);
 }
+
+void acceptSIGINT() {
+    /* Ensure the current process exits on SIGINT (Ctrl-C)
+    */
+    sigset_t sigint;
+    sigaddset(&sigint, SIGINT);
+    struct sigaction exitOnSIGINT = {
+        .sa_handler = SIG_DFL,
+        .sa_mask = sigint,
+        0,
+    };
+    sigaction(SIGINT, &exitOnSIGINT, NULL);
+}

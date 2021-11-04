@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "cmd.h"
 #include "smallsh.h"
+#include "smallsh_signals.h"
 
 /* ---------------------------------------------------
  *
@@ -45,14 +46,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     } 
     // Built-in status command
     else if (strcmp(cmd->argv[0], "status") == 0) {
-        if (shell->statusIsSignal) {
-            // Must inspect status if last process did not terminate normally
-            printf("terminated by signal %d\n", WTERMSIG(shell->status));
-        }
-        else {
-            printf("exit value %d\n", shell->status);
-        }
-        fflush(NULL);
+        printStatus(shell);
         return shell->status;
     } 
     // Non-built-in command
@@ -60,6 +54,22 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         return execute_external(shell, cmd);
     }
 }
+
+void printStatus(struct smallsh *shell) {
+    /* Prints the exit status or signal of
+     * the shell's last foreground process
+    */
+    if (WIFEXITED(shell->status)) {
+        // Child terminated normally
+        printf("exit value %d\n", WEXITSTATUS(shell->status));
+    }
+    else {
+        // Child terminated because of a signal
+        printf("terminated by signal %d\n", WTERMSIG(shell->status));
+    }
+    fflush(NULL);
+}
+
 
 int execute_external(struct smallsh *shell, struct cmd *cmd){
     pid_t spawnpid = fork();
@@ -89,6 +99,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 strcpy(newInput, cmd->input);
             }
             if (newInput) {
+                // Only update output if background or user specified
                 FILE *input = fopen(newInput, "r");
                 if (!input) {
                     printf("cannot open %s for input\n", cmd->input);
@@ -139,26 +150,10 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             -------------------------------------------- */
             if (cmd->background) {
                 // Background children ignore SIGINT
-                sigset_t sigint;
-                sigaddset(&sigint, SIGINT);
-                struct sigaction ignoreSIGINT = { 
-                    .sa_handler = SIG_IGN,
-                    .sa_mask = sigint,
-                    0,
-                };
-                sigaction(SIGINT, &ignoreSIGINT, NULL);  
-
+                ignoreSIGINT();
             }
             else {
                 // Foreground children exit on SIGINT
-                sigset_t sigint;
-                sigaddset(&sigint, SIGINT);
-                struct sigaction exitOnSIGINT = {
-                    .sa_handler = SIG_DFL,
-                    .sa_mask = sigint,
-                    0,
-                };
-                sigaction(SIGINT, &exitOnSIGINT, NULL);
             }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed

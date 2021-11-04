@@ -27,10 +27,10 @@ struct processNode {
     struct processNode *next;
 };
 
-int smallshExecute(struct smallsh *smallsh, struct cmd *cmd);
+int smallshExecute(struct smallsh *shell, struct cmd *cmd);
 void smallshExit();
 void cd(struct cmd *cmd);
-void status();
+void printStatus(struct smallsh *shell);
 int execute_external(struct smallsh *shell, struct cmd *cmd);
 void trackProcess(struct smallsh *shell, struct cmd *cmd, pid_t pid);
 void removeProcess(struct smallsh *shell, struct processNode *node);
