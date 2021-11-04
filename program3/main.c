@@ -31,11 +31,11 @@ int main(int argc, char *argv[]) {
                 fflush(NULL);
                 if (WIFEXITED(status)) {
                     // Child terminated normally
-                    printf("exit value %d", WEXITSTATUS(status));
+                    printf("exit value %d\n", WEXITSTATUS(status));
                 }
                 else {
                     // Child terminated because of a signal
-                    printf("terminated by signal %d", WTERMSIG(status));
+                    printf("terminated by signal %d\n", WTERMSIG(status));
                 }
                 fflush(NULL);
                 removeProcess(shell, node);
