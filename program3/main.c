@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +15,16 @@
 
 int main(int argc, char *argv[]) {
 
+    // Ensure the smallsh process cannot be terminated with CTRL-C 
+    sigset_t sigint;
+    sigaddset(&sigint, SIGINT);
+    struct sigaction ignoreSIGINT = { 
+        .sa_handler = SIG_IGN,
+        .sa_mask = sigint,
+        0,
+    };
+    sigaction(SIGINT, &ignoreSIGINT, NULL);
+
     // Initialize smallsh instance
     struct smallsh *shell = malloc(sizeof(struct smallsh));
     shell->status = EXIT_SUCCESS;
@@ -21,7 +32,7 @@ int main(int argc, char *argv[]) {
     shell->processCount = 0;
 
     for(;;) {
-        // Check for zombie processes
+        // Check for zombie processes, remove if found
         struct processNode *node = shell->processesHead;
         while (node) {
             int status;

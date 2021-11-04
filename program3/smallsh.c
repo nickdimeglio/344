@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -61,14 +62,21 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             break;
         }
         case 0: {
-            /* Redirect input if needed 
-            ----------------------------*/ 
+            /* -----------------------------
+             *          CHILD PROCESS
+             *  ------------------------------ */
+            
+            /*  --------------------------
+             * Redirect input if needed 
+            ---------------------------- */ 
             char* newInput = NULL;
             if (cmd->background) {
+                // Background processes default to /dev/null for input
                 newInput = malloc(strlen("/dev/null"));
-                strcpy(newInput, "/dev/null"); // Background procesess default input to /dev/null
+                strcpy(newInput, "/dev/null"); 
             }
             if (cmd->input) {
+                // User specification should override default
                 free(newInput);
                 newInput = malloc(strlen(cmd->input));
                 strcpy(newInput, cmd->input);
@@ -87,19 +95,23 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 } 
                 free(newInput);
             }
-            /* Redirect output if needed
-            -----------------------------*/
+            /*  -------------------------
+             * Redirect output if needed
+            ----------------------------- */
             char* newOutput = NULL;
             if (cmd->background) {
+                // Background processes default to /dev/null for output
                 newOutput = malloc(strlen("/dev/null"));
                 strcpy(newOutput, "/dev/null");
             }
             if (cmd->output) {
+                // User specification should override default
                 free(newOutput);
                 newOutput = malloc(strlen(cmd->output));
                 strcpy(newOutput, cmd->output);
             }
             if (newOutput) {
+                // Only update output if background or user specified
                 FILE *output = fopen(newOutput, "w");
                 if (!output) {
                     printf("cannot open %s for output\n", cmd->output);
@@ -113,25 +125,39 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 }
                 free(newOutput);
             }
+            if (cmd->background) {
+                // Background children should ignore SIGINT 
+                sigset_t sigint;
+                sigaddset(&sigint, SIGINT);
+                struct sigaction ignoreSIGINT = { 
+                    .sa_handler = SIG_IGN,
+                    .sa_mask = sigint,
+                    0,
+                };
+                sigaction(SIGINT, &ignoreSIGINT, NULL);
+
+            }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed
             exit(1); 
         }
         default: {
-            // Pause smallsh for foreground processes 
+            /* --------------------------
+             *      PARENT PROCESS
+             * ---------------------------*/
             if (!cmd->background) {
-                int status; // Child process provides new shell status
+                // Pause smallsh for foreground processes 
+                int status; 
                 waitpid(spawnpid, &status, 0);
                 if (status) {
-                    // Non-zero status means execvp failed
-                    return 1;
+                    return 1;   // Non-zero status means execvp failed
                 } else {
                     return 0;
                 }
                 return status;
             } 
-            // Don't pause for background processes
             else {
+                // Don't pause for background processes
                 trackProcess(shell, cmd, spawnpid);
                 printf("background pid is %d\n", spawnpid);
                 fflush(NULL);
