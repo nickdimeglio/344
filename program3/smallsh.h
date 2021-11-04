@@ -33,6 +33,6 @@ void smallshExit();
 void cd(struct cmd *cmd);
 void status();
 int execute_external(struct smallsh *shell, struct cmd *cmd);
-void trackProcess(struct smallsh *shell, pid_t pid);
+void trackProcess(struct smallsh *shell, struct cmd *cmd, pid_t pid);
 
 #endif

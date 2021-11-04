@@ -108,7 +108,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             } 
             // Don't pause for background processes
             else {
-                trackProcess(shell, spawnpid);
+                trackProcess(shell, cmd, spawnpid);
                 return shell->status; 
             }
 
@@ -116,7 +116,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
     } 
 }
 
-void trackProcess(struct smallsh *shell, pid_t pid) {
+void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
     /* 
      * Add pid to shell's linked list of background
      * processes
@@ -124,7 +124,8 @@ void trackProcess(struct smallsh *shell, pid_t pid) {
     struct processNode* node = malloc(sizeof(struct processNode));
     node->prev = NULL;
     node->next = NULL;
-    node->command = malloc(strlen(shell->lastCommand->text));
+    node->command = malloc(strlen(cmd->text));
+    strcpy(node->command, cmd->text);
 
     node->pid = pid;
     if (!shell->processesHead) {
