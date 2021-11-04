@@ -141,12 +141,31 @@ void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
     }
 }
 
-void removeProcess(struct processNode *node) {
+void removeProcess(struct smallsh *shell, struct processNode *node) {
     /*
      * Remove pid from shell's linked list of
-     * background processes
+     * background processes. Linked list must not be empty.
     */
-    node->prev->next = node->next;
-    node->next->prev = node->prev;
-    free(node);
+    struct processNode *curr = shell->processesHead;
+    while (curr) {
+        if (curr == node) {
+            if (node == shell->processesHead) {
+                // Removing head of LL
+                shell->processesHead = node->next;
+                free(node);
+            }
+            else if (node == shell->processesTail) {
+                // Removing tail of LL
+                shell->processesTail = node->prev;
+                shell->processesTail->next = NULL;
+                free(node);
+            }
+            else {
+                // Removing node from the middle of LL
+                node->prev->next = node->next;
+                node->next->prev = node->prev;
+                free(node);
+            }
+        }
+    }
 }
