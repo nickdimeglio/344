@@ -141,10 +141,12 @@ void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
     }
 }
 
-void removeProcess(struct smallsh *shell, pid_t pid) {
+void removeProcess(struct processNode *node) {
     /*
      * Remove pid from shell's linked list of
      * background processes
     */
-
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+    free(node);
 }
