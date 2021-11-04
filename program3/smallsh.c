@@ -179,7 +179,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 else {
                     // If terminated by signal, shell status is that signal
                     printf("terminated by signal %d\n", WTERMSIG(status));
-                    shell->statusIsSignal = false;
+                    shell->statusIsSignal = true;
                     return status;
                 }
             }
