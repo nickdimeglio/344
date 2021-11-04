@@ -27,9 +27,12 @@ int main(int argc, char *argv[]) {
         while (node) {
             int *status = NULL;
             printf("PID %d running in the background. Is it a zombie?\n", node->pid);
+            fflush(NULL);
             waitpid(node->pid, status, WNOHANG);
             if (status) {
                 // Zombie found. Remove from linked list
+                printf("Removing Process %d\n", node->pid);
+                fflush(NULL);
                 removeProcess(shell, node);
             }
             node = node->next;
