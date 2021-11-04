@@ -74,7 +74,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 strcpy(newInput, cmd->input);
             }
             if (newInput) {
-                FILE *input = fopen(cmd->input, "r");
+                FILE *input = fopen(newInput, "r");
                 if (!input) {
                     printf("cannot open %s for input\n", cmd->input);
                     fflush(NULL);
