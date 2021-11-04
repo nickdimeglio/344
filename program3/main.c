@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         // Check for zombie processes
         struct processNode *node = shell->processesHead;
         while (node) {
-            printf("Checking this command with pid %d: %s\n", node->pid, node->command);
+            printf("PID %d running in the background\n", node->pid);
             node = node->next;
         }
         // Print prompt 
