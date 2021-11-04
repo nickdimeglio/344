@@ -25,12 +25,10 @@ int main(int argc, char *argv[]) {
         // Check for zombie processes
         struct processNode *node = shell->processesHead;
         while (node) {
-            int *status = NULL;
             printf("PID %d running in the background. Is it a zombie?\n", node->pid);
             fflush(NULL);
-            waitpid(node->pid, status, WNOHANG);
-            if (status) {
-                // Zombie found. Remove from linked list
+            bool zombie = waitpid(node->pid, NULL, WNOHANG);
+            if (zombie) {
                 printf("Removing Process %d\n", node->pid);
                 fflush(NULL);
                 removeProcess(shell, node);
