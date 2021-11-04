@@ -65,9 +65,11 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             ----------------------------*/ 
             char* newInput = NULL;
             if (cmd->background) {
-                newInput = "/dev/null"; // Background procesess default input to /dev/null
+                newInput = malloc(strlen("/dev/null"));
+                strcpy(newInput, "/dev/null"); // Background procesess default input to /dev/null
             }
             if (cmd->input) {
+                free(newInput);
                 newInput = malloc(strlen(cmd->input));
                 strcpy(newInput, cmd->input);
             }
@@ -89,9 +91,11 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             -----------------------------*/
             char* newOutput = NULL;
             if (cmd->background) {
-                newOutput = "/dev/null";
+                newOutput = malloc(strlen("/dev/null"));
+                strcpy(newOutput, "/dev/null");
             }
             if (cmd->output) {
+                free(newOutput);
                 newOutput = malloc(strlen(cmd->output));
                 strcpy(newOutput, cmd->output);
             }
