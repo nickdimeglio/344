@@ -23,7 +23,9 @@ int main(int argc, char *argv[]) {
         // Check for zombie processes
         struct processNode *node = shell->processesHead;
         while (node) {
-            printf("PID %d running in the background\n", node->pid);
+            int status;
+            printf("PID %d running in the background. Is it a zombie?\n", node->pid);
+            waitpid(node->pid, &status, WNOHANG);
             node = node->next;
         }
         // Print prompt 
