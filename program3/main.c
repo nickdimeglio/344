@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "cmd.h"
 #include "smallsh.h"
 
@@ -8,20 +10,30 @@
 *   Process the file provided as an argument to the program to
 *   create a linked list of movie structs and print out the list.
 *   Compile the program as follows:
-*       gcc --std=gnu99 -o movies main.c
 */
 
 int main(int argc, char *argv[]) {
 
     // Initialize smallsh instance
     struct smallsh *shell = malloc(sizeof(struct smallsh));
-    shell->lastCommand = NULL;
     shell->status = EXIT_SUCCESS;
     shell->processesHead = NULL;
-    shell->processesTail = NULL;
     shell->processCount = 0;
 
     for(;;) {
+        // Check for zombie processes
+        struct processNode *node = shell->processesHead;
+        while (node) {
+            printf("PID %d running in the background. Is it a zombie?\n", node->pid);
+            fflush(NULL);
+            bool zombie = waitpid(node->pid, NULL, WNOHANG);
+            if (zombie) {
+                printf("Removing Process %d\n", node->pid);
+                fflush(NULL);
+                removeProcess(shell, node);
+            }
+            node = node->next;
+        }
         // Print prompt 
         printf(": ");
         fflush(NULL);
@@ -33,16 +45,12 @@ int main(int argc, char *argv[]) {
 
         // Parse command 
         struct cmd *cmd = cmdParse(command);
+        free(command);
 
         // Execute command
         if (cmd) {
             // cmdPrint(cmd);
             shell->status = smallshExecute(shell, cmd); 
         }
-
-        // Free command string and previous shell command
-        free(command);
-        free(shell->lastCommand);
-        shell->lastCommand = cmd;
      }
 }    

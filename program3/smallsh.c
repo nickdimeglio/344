@@ -25,10 +25,10 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     // Built-in exit command
     if (strcmp(cmd->argv[0], "exit") == 0) {
         // Close child processes
-        struct processNode *process = shell->processesHead;
-        while (process) {
+        struct processNode *node = shell->processesHead;
+        while (node) {
             // close process
-            process = process->next;
+            node = node->next;
         }
         exit(EXIT_SUCCESS);
     } 
@@ -67,11 +67,11 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 if (!input) {
                     printf("cannot open %s for input\n", cmd->input);
                     fflush(NULL);
-                    exit(1);
+                    exit(1);        // File not found
                 } else {
                     int newfileno = dup2(fileno(input), STDIN_FILENO);
                     if (newfileno < 0) {
-                        exit(1); // Redirect failed, return smallsh failure status 
+                        exit(1);    // Redirect failed
                     }
                 } 
             }
@@ -80,10 +80,12 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 FILE *output = fopen(cmd->output, "w");
                 if (!output) {
                     printf("cannot open %s for output\n", cmd->output);
+                    fflush(NULL);
+                    exit(1);        // File not found
                 } else {
                     int newfileno = dup2(fileno(output), STDOUT_FILENO);
                     if (newfileno < 0) {
-                        exit(1); // Redirect failed, return smallsh failure status 
+                        exit(1);    // Redirect failed
                     }
                 }
             }
@@ -92,16 +94,69 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             exit(1); 
         }
         default: {
-            // Child process provides new shell status
-            int status;
-            waitpid(spawnpid, &status, 0);
-            if (status) {
-                // Non-zero status means execvp failed
-                return 1;
-            } else {
-                return 0;
+            // Pause smallsh for foreground processes 
+            if (!cmd->background) {
+                int status; // Child process provides new shell status
+                waitpid(spawnpid, &status, 0);
+                if (status) {
+                    // Non-zero status means execvp failed
+                    return 1;
+                } else {
+                    return 0;
+                }
+                return status;
+            } 
+            // Don't pause for background processes
+            else {
+                trackProcess(shell, cmd, spawnpid);
+                return shell->status; 
             }
-            return status;
+
+        }
+    } 
+}
+
+void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
+    /* 
+     * Add pid to shell's linked list of background
+     * processes
+    */
+    struct processNode* node = malloc(sizeof(struct processNode));
+    node->command = malloc(strlen(cmd->text));
+    strcpy(node->command, cmd->text);
+
+    node->pid = pid;
+    if (!shell->processesHead) {
+        // First background process of shell 
+        shell->processesHead = node;
+        node->next = NULL;
+    } 
+    else {
+        // Additional processes enter at front
+        node->next = shell->processesHead;
+        shell->processesHead = node;
+    }
+}
+
+void removeProcess(struct smallsh *shell, struct processNode *node) {
+    /*
+     * Remove pid from shell's linked list of
+     * background processes. Linked list should not be empty.
+    */
+    struct processNode *curr = shell->processesHead;
+    if (curr == node) {
+        // Removing head
+        shell->processesHead = node->next;
+        free(node);
+    } else {
+        while (curr->next) {
+            if (curr->next == node) {
+                struct processNode *temp = curr->next->next;
+                free(curr->next);
+                curr->next = temp;
+            } else {
+                curr = curr->next;
+            }
         }
     }
-} 
+}
