@@ -61,8 +61,17 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             break;
         }
         case 0: {
-            // Redirect stdin if needed
+            /* Redirect input if needed 
+            ----------------------------*/ 
+            char* newInput = NULL;
+            if (cmd->background) {
+                newInput = "/dev/null"; // Background procesess default input to /dev/null
+            }
             if (cmd->input) {
+                newInput = malloc(strlen(cmd->input));
+                strcpy(newInput, cmd->input);
+            }
+            if (newInput) {
                 FILE *input = fopen(cmd->input, "r");
                 if (!input) {
                     printf("cannot open %s for input\n", cmd->input);
@@ -74,10 +83,20 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                         exit(1);    // Redirect failed
                     }
                 } 
+                free(newInput);
             }
-            // Redirect stdout if needed
+            /* Redirect output if needed
+            -----------------------------*/
+            char* newOutput = NULL;
+            if (cmd->background) {
+                newOutput = "/dev/null";
+            }
             if (cmd->output) {
-                FILE *output = fopen(cmd->output, "w");
+                newOutput = malloc(strlen(cmd->output));
+                strcpy(newOutput, cmd->output);
+            }
+            if (newOutput) {
+                FILE *output = fopen(newOutput, "w");
                 if (!output) {
                     printf("cannot open %s for output\n", cmd->output);
                     fflush(NULL);
@@ -88,6 +107,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                         exit(1);    // Redirect failed
                     }
                 }
+                free(newOutput);
             }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed
@@ -109,6 +129,8 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             // Don't pause for background processes
             else {
                 trackProcess(shell, cmd, spawnpid);
+                printf("background pid is %d\n", spawnpid);
+                fflush(NULL);
                 return shell->status; 
             }
 
@@ -137,7 +159,6 @@ void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
         shell->processesHead = node;
     }
 
-    printf("background pid is %d\n", pid);
 }
 
 void removeProcess(struct smallsh *shell, struct processNode *node) {
