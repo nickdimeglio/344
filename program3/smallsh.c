@@ -46,7 +46,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     } 
     // Built-in status command
     else if (strcmp(cmd->argv[0], "status") == 0) {
-        printStatus(shell);
+        printStatus(shell->status);
         return shell->status;
     } 
     // Non-built-in command
@@ -55,17 +55,16 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     }
 }
 
-void printStatus(struct smallsh *shell) {
-    /* Prints the exit status or signal of
-     * the shell's last foreground process
+void printStatus(int status) {
+    /* Prints the provided exit status or signal 
     */
-    if (WIFSIGNALED(shell->status)) {
+    if (WIFSIGNALED(status)) {
         // Child terminated because of a signal
-        printf("terminated by signal %d\n", WTERMSIG(shell->status));
+        printf("terminated by signal %d\n", WTERMSIG(status));
     }
     else {
         // Child terminated normally
-        printf("exit value %d\n", WEXITSTATUS(shell->status));
+        printf("exit value %d\n", WEXITSTATUS(status));
     }
     fflush(NULL);
 }

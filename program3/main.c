@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
             if (zombie) {
                 printf("background pid %d is done: ", node->pid);
                 fflush(NULL);
-                printStatus(shell);
+                printStatus(status);
                 removeProcess(shell, node);
             }
             node = node->next;
