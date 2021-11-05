@@ -24,8 +24,9 @@ int main(int argc, char *argv[]) {
     shell->processesHead = NULL;
     shell->processCount = 0;
 
-    // Shell process should not stop on Ctrl-C
+    // Shell process should not stop on Ctrl-C or Ctrl-Z
     ignoreSIGINT();
+    ignoreSIGTSTP();
 
     for(;;) {
         // Check for zombie processes, remove if found
