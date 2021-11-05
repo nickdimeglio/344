@@ -99,7 +99,6 @@ void handleForegroundOnly(struct smallsh *shell) {
      * to listen for SIGSTP and enter foreground-only mode
      * when Ctrl-Z is pressed
     */
-    shell->foregroundOnly = true;
     sigset_t sigstp;
     sigaddset(&sigstp, SIGTSTP);
     struct sigaction handleForegroundOnly = {
