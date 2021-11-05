@@ -59,13 +59,13 @@ void printStatus(struct smallsh *shell) {
     /* Prints the exit status or signal of
      * the shell's last foreground process
     */
-    if (WIFEXITED(shell->status)) {
-        // Child terminated normally
-        printf("exit value %d\n", WEXITSTATUS(shell->status));
-    }
-    else {
+    if (WIFSIGNALED(shell->status)) {
         // Child terminated because of a signal
         printf("terminated by signal %d\n", WTERMSIG(shell->status));
+    }
+    else {
+        // Child terminated normally
+        printf("exit value %d\n", WEXITSTATUS(shell->status));
     }
     fflush(NULL);
 }
