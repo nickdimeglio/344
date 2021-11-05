@@ -16,6 +16,8 @@ struct smallsh {
     struct processNode *processesHead;
     int processCount;
     int status; 
+    bool statusIsSignal;
+    bool foregroundOnly;
 };
 
 struct processNode {
@@ -26,10 +28,10 @@ struct processNode {
     struct processNode *next;
 };
 
-int smallshExecute(struct smallsh *smallsh, struct cmd *cmd);
+int smallshExecute(struct smallsh *shell, struct cmd *cmd);
 void smallshExit();
 void cd(struct cmd *cmd);
-void status();
+void printStatus(int status, bool statusIsSignal);
 int execute_external(struct smallsh *shell, struct cmd *cmd);
 void trackProcess(struct smallsh *shell, struct cmd *cmd, pid_t pid);
 void removeProcess(struct smallsh *shell, struct processNode *node);

@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include "cmd.h"
+#include "smallsh.h"
 
 /* ---------------------------------------------------
  *
@@ -61,7 +62,7 @@ struct cmd *cmdInit() {
     return cmd;
 }
 
-struct cmd *cmdParse(char* cmdString) {
+struct cmd *cmdParse(struct smallsh *shell, char* cmdString) {
     /* parse a string into a cmd struct
     */
    
@@ -111,7 +112,10 @@ struct cmd *cmdParse(char* cmdString) {
         // Option: Background process
         // (must be at end of command string)
         else if (strcmp(token, "&") == 0 && (!saveptr || *saveptr == '\0')) {
-            cmd->background = true;
+            if (!shell->foregroundOnly) {
+                // Ignore if in Foreground-only mode
+                cmd->background = true;
+            }
         }
         // New Argument
         else {

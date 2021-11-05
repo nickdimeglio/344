@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "cmd.h"
 #include "smallsh.h"
+#include "smallsh_signals.h"
 
 /* ---------------------------------------------------
  *
@@ -28,7 +29,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         // Close child processes
         struct processNode *node = shell->processesHead;
         while (node) {
-            // close process
+            kill(node->pid, 0);
             node = node->next;
         }
         exit(EXIT_SUCCESS);
@@ -45,7 +46,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     } 
     // Built-in status command
     else if (strcmp(cmd->argv[0], "status") == 0) {
-        printf("exit value %d\n", shell->status);
+        printStatus(shell->status, shell->statusIsSignal);
         return shell->status;
     } 
     // Non-built-in command
@@ -53,6 +54,22 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         return execute_external(shell, cmd);
     }
 }
+
+void printStatus(int status, bool statusIsSignal) {
+    /* Prints the provided exit status or signal 
+    */
+    if (statusIsSignal) {
+        // Child terminated because of a signal
+        printf("terminated by signal %d\n", WTERMSIG(status));
+        fflush(NULL);
+    }
+    else {
+        // Child terminated normally
+        printf("exit value %d\n", status); 
+        fflush(NULL);
+    }
+}
+
 
 int execute_external(struct smallsh *shell, struct cmd *cmd){
     pid_t spawnpid = fork();
@@ -82,6 +99,8 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 strcpy(newInput, cmd->input);
             }
             if (newInput) {
+                // Only update output if background or user specified
+                // Input redirection is needed
                 FILE *input = fopen(newInput, "r");
                 if (!input) {
                     printf("cannot open %s for input\n", cmd->input);
@@ -125,20 +144,33 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 }
                 free(newOutput);
             }
+            /*  -------------------------------------------
+             * Must define rules for handling SIGINT, as
+             * they vary between foreground and background
+             * children.
+            -------------------------------------------- */
             if (cmd->background) {
-                // Background children should ignore SIGINT 
+                // Background children ignore Ctrl-C and Ctrl-Z
+                ignoreSIGINT();
+                ignoreSIGTSTP();
+            }
+            else {
+                // Foreground children exit on Ctrl-C
                 sigset_t sigint;
                 sigaddset(&sigint, SIGINT);
-                struct sigaction ignoreSIGINT = { 
-                    .sa_handler = SIG_IGN,
+                struct sigaction exitOnSIGINT = {
+                    .sa_handler = SIG_DFL,
                     .sa_mask = sigint,
                     0,
                 };
-                sigaction(SIGINT, &ignoreSIGINT, NULL);
-
+                sigaction(SIGINT, &exitOnSIGINT, NULL);
+                
+                // Foreground children ignore Ctrl-Z
+                ignoreSIGTSTP();
             }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed
+            fflush(NULL);
             exit(1); 
         }
         default: {
@@ -148,14 +180,29 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             if (!cmd->background) {
                 // Pause smallsh for foreground processes 
                 int status; 
+
+                // Stop SIGTSTP from interrupting foreground processes
+                sigset_t sigtstp;
+                sigaddset(&sigtstp, SIGTSTP);
+                sigprocmask(SIG_BLOCK, &sigtstp, NULL);
+
+                // Catch completed foreground process
                 waitpid(spawnpid, &status, 0);
-                if (status) {
-                    return 1;   // Non-zero status means execvp failed
-                } else {
-                    return 0;
+
+                // Unblock SIGTSTP
+                sigprocmask(SIG_UNBLOCK, &sigtstp, NULL);
+
+                if (WIFEXITED(status)) {
+                    // Shell status is 0 or 1 on normal exit
+                    shell->statusIsSignal = false;
+                    if (WEXITSTATUS(status)) {return 1;} else {return 0;}
                 }
-                return status;
-            } 
+                else {
+                    // If terminated by signal, shell status is that signal
+                    shell->statusIsSignal = true;
+                    return WTERMSIG(status);
+                }
+            }
             else {
                 // Don't pause for background processes
                 trackProcess(shell, cmd, spawnpid);
@@ -163,9 +210,8 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 fflush(NULL);
                 return shell->status; 
             }
-
-        }
-    } 
+        } 
+    }
 }
 
 void trackProcess(struct smallsh *shell, struct cmd *cmd,  pid_t pid) {
@@ -213,3 +259,4 @@ void removeProcess(struct smallsh *shell, struct processNode *node) {
         }
     }
 }
+

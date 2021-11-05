@@ -4,8 +4,10 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include "cmd.h"
 #include "smallsh.h"
+#include "smallsh_signals.h"
 
 /*
 *   Process the file provided as an argument to the program to
@@ -13,23 +15,21 @@
 *   Compile the program as follows:
 */
 
+// Global variable for handling Foreground-only mode
+bool foregroundOnly = false; 
+
 int main(int argc, char *argv[]) {
 
-    // Ensure the smallsh process cannot be terminated with CTRL-C 
-    sigset_t sigint;
-    sigaddset(&sigint, SIGINT);
-    struct sigaction ignoreSIGINT = { 
-        .sa_handler = SIG_IGN,
-        .sa_mask = sigint,
-        0,
-    };
-    sigaction(SIGINT, &ignoreSIGINT, NULL);
-
-    // Initialize smallsh instance
+    // Initialize smallsh instance 
     struct smallsh *shell = malloc(sizeof(struct smallsh));
     shell->status = EXIT_SUCCESS;
+    shell->statusIsSignal = false;
     shell->processesHead = NULL;
     shell->processCount = 0;
+
+    // Shell process should not stop on Ctrl-C or Ctrl-Z
+    ignoreSIGINT();
+    ignoreSIGTSTP();
 
     for(;;) {
         // Check for zombie processes, remove if found
@@ -40,15 +40,12 @@ int main(int argc, char *argv[]) {
             if (zombie) {
                 printf("background pid %d is done: ", node->pid);
                 fflush(NULL);
-                if (WIFEXITED(status)) {
-                    // Child terminated normally
-                    printf("exit value %d\n", WEXITSTATUS(status));
+                if WIFSIGNALED(status) {
+                    printStatus(WTERMSIG(status), true);
                 }
                 else {
-                    // Child terminated because of a signal
-                    printf("terminated by signal %d\n", WTERMSIG(status));
+                    printStatus(WEXITSTATUS(status), status);
                 }
-                fflush(NULL);
                 removeProcess(shell, node);
             }
             node = node->next;
@@ -57,13 +54,17 @@ int main(int argc, char *argv[]) {
         printf(": ");
         fflush(NULL);
 
+        // Listen for Ctrl-Z and toggle foreground-only mode if needed
+        handleForegroundOnly();        
+        shell->foregroundOnly = foregroundOnly;
+
         // Fetch command
         char *command = calloc(2049, sizeof(char)); 
         fgets(command, 2049, stdin);
         command[strlen(command) - 1] = '\0'; // Trim off newline char
 
         // Parse command 
-        struct cmd *cmd = cmdParse(command);
+        struct cmd *cmd = cmdParse(shell, command);
         free(command);
 
         // Execute command
@@ -73,3 +74,43 @@ int main(int argc, char *argv[]) {
         }
      }
 }    
+
+
+ /*----------------------------------------------------
+ *                    FUNCTIONS                       |
+ *                       FOR                          |
+ *               FOREGROUND ONLY MODE                 |
+ * --------------------------------------------------*/
+void toggleFGO(int sig) {
+    if (foregroundOnly) {
+        // Exit Foreground-only Mode
+        foregroundOnly = false;
+        char* msg = "\nExiting foreground-only mode\n";
+        write(STDOUT_FILENO, msg, strlen(msg));
+        fflush(NULL);
+
+    }
+    else {
+        // Enter Foreground-only Mode
+        foregroundOnly = true;
+        char* msg = "\nEntering foreground-only mode (& is now ignored)\n";
+        write(STDOUT_FILENO, msg, strlen(msg));
+        fflush(NULL);
+    }
+}
+
+void handleForegroundOnly(struct smallsh *shell) {
+    /* Causes the current process (intended to be smallsh)
+     * to listen for SIGSTP and enter foreground-only mode
+     * when Ctrl-Z is pressed
+    */
+    sigset_t sigstp;
+    sigaddset(&sigstp, SIGTSTP);
+    struct sigaction handleForegroundOnly = {
+        .sa_handler = toggleFGO,
+        .sa_mask = 0,
+        0,
+    };
+    sigaction(SIGTSTP, &handleForegroundOnly, NULL);
+}
+
