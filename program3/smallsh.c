@@ -180,7 +180,18 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             if (!cmd->background) {
                 // Pause smallsh for foreground processes 
                 int status; 
+
+                // Stop SIGTSTP from interrupting foreground processes
+                sigset_t sigtstp;
+                sigaddset(&sigtstp, SIGTSTP);
+                sigprocmask(SIG_BLOCK, &sigtstp, NULL);
+
+                // Catch completed foreground process
                 waitpid(spawnpid, &status, 0);
+
+                // Unblock SIGTSTP
+                sigprocmask(SIG_UNBLOCK, &sigtstp, NULL);
+
                 if (WIFEXITED(status)) {
                     // Shell status is 0 or 1 on normal exit
                     shell->statusIsSignal = false;
