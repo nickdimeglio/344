@@ -1,6 +1,7 @@
 #ifndef CMD_H
 #define CMD_H
 #include <stdbool.h>
+#include "smallsh.h"
 
 /* ---------------------------------------------------
  *
@@ -20,7 +21,7 @@ struct cmd {
 
 char* cmdExpand(char* cmdString);
 struct cmd *cmdInit();
-struct cmd *cmdParse(char* cmd);
+struct cmd *cmdParse(struct smallsh *shell, char* cmd);
 void cmdPrint(struct cmd *cmd);
 
 #endif
