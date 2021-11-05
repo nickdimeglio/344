@@ -64,7 +64,7 @@ void printStatus(int status, bool statusIsSignal) {
     }
     else {
         // Child terminated normally
-        printf("exit value %d\n", WEXITSTATUS(status));
+        printf("exit value %d\n", status); 
     }
     fflush(NULL);
 }
