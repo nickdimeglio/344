@@ -94,7 +94,7 @@ void toggleFGO(int sig) {
         // Enter Foreground-only Mode
         foregroundOnly = true;
         char* msg = "\nEntering foreground-only mode (& is now ignored)\n";
-        write(STDIN_FILENO, msg, strlen(msg));
+        write(STDOUT_FILENO, msg, strlen(msg));
         fflush(NULL);
     }
 }
