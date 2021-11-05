@@ -29,7 +29,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
         // Close child processes
         struct processNode *node = shell->processesHead;
         while (node) {
-            // close process
+            kill(node->pid, 0);
             node = node->next;
         }
         exit(EXIT_SUCCESS);
@@ -61,12 +61,13 @@ void printStatus(int status, bool statusIsSignal) {
     if (statusIsSignal) {
         // Child terminated because of a signal
         printf("terminated by signal %d\n", WTERMSIG(status));
+        fflush(NULL);
     }
     else {
         // Child terminated normally
         printf("exit value %d\n", status); 
+        fflush(NULL);
     }
-    fflush(NULL);
 }
 
 
@@ -169,6 +170,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
             }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed
+            fflush(NULL);
             exit(1); 
         }
         default: {
