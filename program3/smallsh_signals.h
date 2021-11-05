@@ -3,4 +3,5 @@
 
 void ignoreSIGINT();
 void ignoreSIGTSTP();
+void handleForegroundOnly();
 #endif

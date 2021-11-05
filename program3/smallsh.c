@@ -87,7 +87,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
              * Redirect input if needed 
             ---------------------------- */ 
             char* newInput = NULL;
-            if (cmd->background) {
+            if (cmd->background && !shell->foregroundOnly) {
                 // Background processes default to /dev/null for input
                 newInput = malloc(strlen("/dev/null"));
                 strcpy(newInput, "/dev/null"); 
@@ -150,11 +150,12 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
              * children.
             -------------------------------------------- */
             if (cmd->background) {
-                // Background children ignore SIGINT
+                // Background children ignore Ctrl-C and Ctrl-Z
                 ignoreSIGINT();
+                ignoreSIGTSTP();
             }
             else {
-                // Foreground children exit on SIGINT
+                // Foreground children exit on Ctrl-C
                 sigset_t sigint;
                 sigaddset(&sigint, SIGINT);
                 struct sigaction exitOnSIGINT = {
@@ -163,6 +164,9 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                     0,
                 };
                 sigaction(SIGINT, &exitOnSIGINT, NULL);
+                
+                // Foreground children ignore Ctrl-Z
+                ignoreSIGTSTP();
             }
             execvp(cmd->argv[0], cmd->argv);
             printf("%s: no such file or directory\n", cmd->argv[0]);  // execvp only returns if command failed

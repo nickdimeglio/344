@@ -17,6 +17,7 @@ struct smallsh {
     int processCount;
     int status; 
     bool statusIsSignal;
+    bool foregroundOnly;
 };
 
 struct processNode {

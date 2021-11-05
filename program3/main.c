@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include "cmd.h"
 #include "smallsh.h"
 #include "smallsh_signals.h"
@@ -14,10 +15,12 @@
 *   Compile the program as follows:
 */
 
+// Global variable for handling Foreground-only mode
+bool foregroundOnly = false; 
+
 int main(int argc, char *argv[]) {
 
-
-    // Initialize smallsh instance
+    // Initialize smallsh instance 
     struct smallsh *shell = malloc(sizeof(struct smallsh));
     shell->status = EXIT_SUCCESS;
     shell->statusIsSignal = false;
@@ -46,6 +49,10 @@ int main(int argc, char *argv[]) {
         printf(": ");
         fflush(NULL);
 
+        // Listen for Ctrl-Z and toggle foreground-only mode if needed
+        handleForegroundOnly();        
+        shell->foregroundOnly = foregroundOnly;
+
         // Fetch command
         char *command = calloc(2049, sizeof(char)); 
         fgets(command, 2049, stdin);
@@ -62,3 +69,44 @@ int main(int argc, char *argv[]) {
         }
      }
 }    
+
+
+ /*----------------------------------------------------
+ *                    FUNCTIONS                       |
+ *                       FOR                          |
+ *               FOREGROUND ONLY MODE                 |
+ * --------------------------------------------------*/
+void toggleFGO(int sig) {
+    if (foregroundOnly) {
+        // Exit Foreground-only Mode
+        foregroundOnly = false;
+        char* msg = "\nExiting foreground-only mode\n";
+        write(STDOUT_FILENO, msg, strlen(msg));
+        fflush(NULL);
+
+    }
+    else {
+        // Enter Foreground-only Mode
+        foregroundOnly = true;
+        char* msg = "\nEntering foreground-only mode\n";
+        write(STDIN_FILENO, msg, strlen(msg));
+        fflush(NULL);
+    }
+}
+
+void handleForegroundOnly(struct smallsh *shell) {
+    /* Causes the current process (intended to be smallsh)
+     * to listen for SIGSTP and enter foreground-only mode
+     * when Ctrl-Z is pressed
+    */
+    shell->foregroundOnly = true;
+    sigset_t sigstp;
+    sigaddset(&sigstp, SIGTSTP);
+    struct sigaction handleForegroundOnly = {
+        .sa_handler = toggleFGO,
+        .sa_mask = 0,
+        0,
+    };
+    sigaction(SIGTSTP, &handleForegroundOnly, NULL);
+}
+

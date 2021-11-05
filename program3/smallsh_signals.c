@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "cmd.h"
+#include "smallsh.h"
 
 void ignoreSIGINT() {
     /* Causes the current process to ignore SIGINT (Ctrl-C) 
@@ -20,11 +21,11 @@ void ignoreSIGINT() {
 void ignoreSIGTSTP() {
     /* Causes the current process to ignore SIGTSTP (Ctrl-Z) 
     */
-    sigset_t sigint;
-    sigaddset(&sigint, SIGTSTP);
+    sigset_t sigstp;
+    sigaddset(&sigstp, SIGTSTP);
     struct sigaction ignoreSIGTSTP = { 
         .sa_handler = SIG_IGN,
-        .sa_mask = sigint,
+        .sa_mask = sigstp,
         0,
     };
     sigaction(SIGTSTP, &ignoreSIGTSTP, NULL);
