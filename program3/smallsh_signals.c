@@ -21,11 +21,11 @@ void ignoreSIGINT() {
 void ignoreSIGTSTP() {
     /* Causes the current process to ignore SIGTSTP (Ctrl-Z) 
     */
-    sigset_t sigstp;
-    sigaddset(&sigstp, SIGTSTP);
+    sigset_t sigtstp;
+    sigaddset(&sigtstp, SIGTSTP);
     struct sigaction ignoreSIGTSTP = { 
         .sa_handler = SIG_IGN,
-        .sa_mask = sigstp,
+        .sa_mask = sigtstp,
         0,
     };
     sigaction(SIGTSTP, &ignoreSIGTSTP, NULL);
