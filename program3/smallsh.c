@@ -46,7 +46,7 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     } 
     // Built-in status command
     else if (strcmp(cmd->argv[0], "status") == 0) {
-        printStatus(shell->status);
+        printStatus(shell->status, shell->statusIsSignal);
         return shell->status;
     } 
     // Non-built-in command
@@ -55,10 +55,10 @@ int smallshExecute(struct smallsh *shell, struct cmd *cmd) {
     }
 }
 
-void printStatus(int status) {
+void printStatus(int status, bool statusIsSignal) {
     /* Prints the provided exit status or signal 
     */
-    if (WIFSIGNALED(status)) {
+    if (statusIsSignal) {
         // Child terminated because of a signal
         printf("terminated by signal %d\n", WTERMSIG(status));
     }
@@ -181,10 +181,12 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
                 waitpid(spawnpid, &status, 0);
                 if (WIFEXITED(status)) {
                     // Shell status is 0 or 1 on normal exit
+                    shell->statusIsSignal = false;
                     if (WEXITSTATUS(status)) {return 1;} else {return 0;}
                 }
                 else {
                     // If terminated by signal, shell status is that signal
+                    shell->statusIsSignal = true;
                     return WTERMSIG(status);
                 }
             }
