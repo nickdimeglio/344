@@ -118,7 +118,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
              * Redirect output if needed
             ----------------------------- */
             char* newOutput = NULL;
-            if (cmd->background) {
+            if (cmd->background && !shell->foregroundOnly) {
                 // Background processes default to /dev/null for output
                 newOutput = malloc(strlen("/dev/null"));
                 strcpy(newOutput, "/dev/null");
@@ -149,7 +149,7 @@ int execute_external(struct smallsh *shell, struct cmd *cmd){
              * they vary between foreground and background
              * children.
             -------------------------------------------- */
-            if (cmd->background) {
+            if (cmd->background && !shell->foregroundOnly) {
                 // Background children ignore Ctrl-C and Ctrl-Z
                 ignoreSIGINT();
                 ignoreSIGTSTP();
