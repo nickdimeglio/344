@@ -8,7 +8,7 @@ where items in square brackets are optional. Any command beginning with ```#``` 
 
 If standard input or output is to be redirected, ```>``` or ```<``` followed by a filename word must appear after all the arguments. Input redirection can appear before or after output redirection.
 
-If the command is to be executed in the background, the last word must be &. If the & character appears anywhere else, it will be treated as normal text.
+If the command is to be executed in the background, the last word must be ```&```. If the ```&``` character appears anywhere else, it will be treated as normal text.
 
 Smallsh supports three built-in commands:
 * ```exit```
