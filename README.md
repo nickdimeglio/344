@@ -1,4 +1,4 @@
-# Smallsh - A command line shell written in C
+# Smallsh command line shell in C
 
 ![Alt Text](https://media3.giphy.com/media/RsCPECqlREScUVFMvJ/giphy.gif)
 
