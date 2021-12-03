@@ -5,6 +5,15 @@ The syntax for commands is as follows:
 ```
 command [arg1 arg2 ... [< input_file] [> output_file] [&]
 ```
-... where items in square brackets are optional.
+where items in square brackets are optional. Any command beginning with ```#``` will be treated as a comment and ignored. Smallsh commands support expansion of the variable ```$$``` into the PID of the shell.
 
-Smallsh supports three built-in commands (```exit```, ```cd```, and ```status```). Smallsh supports all other commands using '''fork()''' and '''exec()'''. The special symbols ```>```, ```<```, and ```&```` allow you to redirect I/O and run commands in the background. The shell also supports expansion of the variable `$$`, which is replaced by the process ID of smallsh itself.
+If standard input or output is to be redirected, ```>``` or ```<``` followed by a filename word must appear after all the arguments. Input redirection can appear before or after output redirection.
+
+If the command is to be executed in the background, the last word must be &. If the & character appears anywhere else, it will be treated as normal text.
+
+Smallsh supports three built-in commands:
+* ```exit```
+* ``cd```
+* ```status```
+
+All other commands are implemented using using '''fork()''' and '''exec()'''.
