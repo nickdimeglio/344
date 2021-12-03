@@ -1,6 +1,6 @@
 # Smallsh - A command line shell written in C
 
-<iframe src="https://giphy.com/embed/RsCPECqlREScUVFMvJ" width="480" height="292" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/RsCPECqlREScUVFMvJ">via GIPHY</a></p>
+![Alt Text](https://media3.giphy.com/media/RsCPECqlREScUVFMvJ/giphy.gif)
 
 Smallsh is a shell that implements a subset of features of well-known shells such as bash or zsh. The syntax for a command is as follows:
 ```
